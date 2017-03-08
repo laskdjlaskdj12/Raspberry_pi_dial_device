@@ -8,6 +8,11 @@
 #include <QThread>
 
 
+/*
+ *
+ *
+ * */
+
 class IOT_Access_Server : public QObject
 {
     Q_OBJECT
@@ -18,10 +23,11 @@ public:
     void set_room_tempture(int temp);
     void set_bathroom_tempture(int temp);
 
-signals:
+private:
+
 
 public slots:
-    //만약 connection이 왔을때
+    //만약 connection이 왔을때 socket에 할당을 함
     void connect_socket();
 private:
     QTcpServer* server;
