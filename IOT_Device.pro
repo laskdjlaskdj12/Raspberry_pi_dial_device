@@ -26,4 +26,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
     iot_access_server.h \
-    raspberry_protocol.h
+    raspberry_protocol.h \
+    qt_json_socket_lib_global.h \
+    qt_json_socket_lib.h
+
+macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
+
+INCLUDEPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug
+DEPENDPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug

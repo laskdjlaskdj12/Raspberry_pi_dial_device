@@ -16,6 +16,7 @@ public:
     void set_Message(QString s);
     void set_Tempreture(int i);
     void set_Connect(bool a);
+    void set_ByteArray();
 
     QJsonObject get_Json();
     QByteArray get_Json_bytearray();

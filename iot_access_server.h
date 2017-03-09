@@ -4,11 +4,12 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
-//#include "socket_access.h"
 #include <QThread>
+#include "qt_json_socket_lib.h"
 
 
-/*
+/* 1. IOTDevcie는 Socket_Lib_test를 import를 함
+ * 2. 만약 socket_Lib_test가 임포트가 안됬을 경우 QNetwrokAccessManager로 해결을 함
  *
  *
  * */
@@ -28,7 +29,7 @@ private:
 
 
 public slots:
-    //만약 connection이 왔을때 socket에 할당을 함
+    //만약 connection이 왔을때 socket library 에 할당을 함
 
 signals:
 
@@ -38,8 +39,11 @@ public slots:
     void connect_socket();
 private:
     QTcpServer* server;
-    //QThread sock_thread;
-    QTcpSocket* socket;
+    QThread     sock_thread;
+
+    //만약 소켓이 accept를 할경우
+    Qt_Json_Socket_Lib lib;
+
 
 
 };

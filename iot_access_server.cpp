@@ -43,25 +43,42 @@ void IOT_Access_Server::connect_socket()
 {
     try{
 
-        //소켓을 현재 클라이언트로부터 읽어들임
-        Socket_Access access;
+        //각 타임아웃을 세팅
+        lib.set_connect_timeout (3000);
+        lib.set_recv_timeout (3000);
+        lib.set_send_timeout (3000);
 
-        QTcpSocket* sock = server->nextPendingConnection ();
-        qDebug()<<"[Info] : Client is Request connect";
 
-        //소켓을 server->nextpending으로 변경
-        access.set_socket (sock);
-        qDebug()<<"[Info] : set_socket clear";
+        //만약 connect이 되었을 경우 소켓을 먼저 세팅함
+        lib.set_socket (server->nextPendingConnection ());
+        qDebug()<<"[Info] : Setting the socket to send_Library";
 
-        //access 프로토콜을 받음
-        if(access.connect_clear () != true){
-            qDebug()<<"[Error] : Error of accessd";
-            return;
+        //먼저 recv를 통해 Json_protocol를 받아들임
+        QJsonDocument doc = lib.recv_Json ();
+        QJsonObject obj = doc.object ();
+
+        //만약 doc가 recv받을때 null일 경우
+        if(doc.isNull ()){
+            qDebug()<<"[Error] : can't convert QJsonDocument";
+            obj["connect"] = false;
         }
-        qDebug()<<"[Info] : set_socket clear";
+
+        //만약 connect가 false일 경우
+        if(obj["connect"].isBool () != true){
+            qDebug()<<"[Info] : Error of receving Protocol";
+            obj["connect"] = false;
+        }
+
+        //만약 json send가 false일 경우
+        if(lib.send_Json (obj) != false){
+            qDebug()<<"[Error] : send_Json is fail";
+            throw lib.get_socket ()->error ();
+        }
+
+        qDebug()<<"[Info] : send Json object";
 
     }catch(QAbstractSocket::SocketError e){
-        qDebug()<<"[Error] : server error "<<server->errorString ();
+        qDebug()<<"[Error] : server error "<<lib.get_socket ()->errorString ();
     }
 }
 
