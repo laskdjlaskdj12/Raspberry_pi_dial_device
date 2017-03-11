@@ -70,7 +70,7 @@ void IOT_Access_Server::connect_socket()
         }
 
         //만약 json send가 false일 경우
-        if(lib.send_Json (obj) != false){
+        if(lib.send_Json (obj) != true){
             qDebug()<<"[Error] : send_Json is fail";
             throw lib.get_socket ()->error ();
         }
