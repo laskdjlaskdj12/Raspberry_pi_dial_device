@@ -53,6 +53,11 @@ public:
 
     //disconnect
     void disconnect_server();
+    void disconnect_socket();
+
+    //소켓디스크립터 삭제
+    void delete_QTcpSocket();
+
 
 private slots:
 
