@@ -55,14 +55,19 @@ void IOT_Access_Server::disconnect_from_client()
     lib.delete_QTcpSocket ();
 }
 
-
+/*
+ * 1.connect시 프로토콜을 connect 프로시저 내에 읽고 disconnect할수 있도록 함
+ * 2. 기존의
+ *
+ *
+ * */
 void IOT_Access_Server::connect_socket()
 {
     try{
         /*
-         * 1.disconnect 시그널이 발생시 set_recv_timeout를 0으로함
-         * 2.Qt_Json_Socket_Lib::disconnect_socket()
-         * 3.while 문을 false로 함
+         * 1.connect 반응이 오면 connectaccept함
+         * 2.Qt_Json_Socket_Lib::disconnect_socket()이 오면 바로
+         * 3.
          * */
 
         //각 타임아웃을 세팅
@@ -97,30 +102,74 @@ void IOT_Access_Server::connect_socket()
             throw lib.get_socket ()->error ();
         }
 
+        //send Json object으로 전송함
         qDebug()<<"[Info] : send Json object";
 
-        //json으로 세팅 구역
-        switch(device_list[obj["device"].toString ()]){
 
-        case 0:
-            qDebug()<<"[Info] : set_tempture of LivingRoom tempture : "<<obj["tempture"].toInt ();
-            set_room_tempture (obj["tempture"].toInt ());
-            break;
-        case 1:
-            qDebug()<<"[Info] : set_tempture of BathRoom tempture : "<<obj["tempture"].toInt ();
-            set_room_tempture (obj["tempture"].toInt ());
-            break;
 
+        //device조작 명령이 올경우
+        if(obj["device"].isNull () != true){
+
+            //recv으로 조정을 함
+            doc = lib.recv_Json ();
+
+            //만약 doc가 읽을수 없을경우
+            if(doc.isNull ()){
+                qDebug()<<"[Error] : recv_Json protocol is fail";
+                throw lib.get_socket ()->error ();
+            }
+
+            //수신받은 프로토콜을 QJsonObjectfh qusghks
+            obj = doc.object ();
+
+            switch(device_list[obj["device"].toString ()]){
+
+            case 0:
+                qDebug()<<"[Info] : set_tempture of LivingRoom tempture : "<<obj["tempture"].toInt ();
+                set_room_tempture (obj["tempture"].toInt ());
+                break;
+            case 1:
+                qDebug()<<"[Info] : set_tempture of BathRoom tempture : "<<obj["tempture"].toInt ();
+                set_room_tempture (obj["tempture"].toInt ());
+                break;
+
+
+            }
+
+            //프로토콜 obj["connect"]로 설정
+            obj["connect"] = true;
+
+
+            //클라이언트로 전송
+            if(lib.send_Json (obj) != true){
+                qDebug()<<"[Info] : send setting";
+            }
+
+            //클라이언트 disconnect
+            qDebug()<<"[Info] : disconnect client";
 
         }
-
-        qDebug()<<"[Info] : disconnect client";
 
         //클라이언트 disconnect를 함
         lib.disconnect_socket ();
 
+
     }catch(QAbstractSocket::SocketError e){
+
+        //에러를 발생함
         qDebug()<<"[Error] : server error "<<lib.get_socket ()->errorString ();
+
+        //클라이언트에 전송이 가능할경우
+        if(lib.get_socket ()->isWritable ()){
+            QJsonObject obj;
+            obj["Message"] = "Protocol isn't readable";
+
+            if(lib.send_Json (obj) != true){
+                qDebug()<<"[Error] : send_error log is fail";
+            }
+        }
+        //클라이언트를 disconnect함
+        lib.disconnect_socket ();
     }
 }
 
