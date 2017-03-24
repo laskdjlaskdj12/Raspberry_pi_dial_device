@@ -1,22 +1,25 @@
 #include "iot_access_server.h"
 
-IOT_Access_Server::IOT_Access_Server(QObject *parent) : QObject(parent)
+IOT_Access_Server::IOT_Access_Server (QObject *parent) : QObject(parent)
 {
     server = new QTcpServer;
     device_list["Livingroom"] = 0;
-    device_list["Bathroom"] =   1;
+    device_list["Bathroom"]   = 1;
 
     //만약 연결 요청 시그널이 왔을 경우 connect
     connect(server,SIGNAL(newConnection()), this, SLOT(connect_socket ()));
+
+    //라즈베리파이 디바이스 설정
+    dev.set_gpio (4);
 }
 
-IOT_Access_Server::~IOT_Access_Server()
+IOT_Access_Server::~IOT_Access_Server ()
 {
     qDebug()<<"[Info] : Close Server";
     server->close ();
 }
 
-void IOT_Access_Server::open_server(int port)
+void IOT_Access_Server::open_server (int port)
 {
     qDebug()<<"[Info] : OpenServer ";
     qDebug()<<"[Info] : port :"<<port;
@@ -29,14 +32,15 @@ void IOT_Access_Server::open_server(int port)
 
 }
 
-void IOT_Access_Server::set_room_tempture(int temp)
+void IOT_Access_Server::set_room_tempture (int temp)
 {
-    qDebug()<<"[Info] : set romm tempture : "<<temp;
+    qDebug()<<"[Info] : set room tempture : "<<temp;
+    dev.set_position (temp);
 }
 
-void IOT_Access_Server::set_bathroom_tempture(int temp)
+void IOT_Access_Server::set_bathroom_tempture (int temp)
 {
-    qDebug()<<"[Info] : set bathroom tempture : "<<temp;
+    qDebug()<<"[Info] : set room tempture : "<<temp;
 }
 
 
@@ -46,7 +50,7 @@ void IOT_Access_Server::set_bathroom_tempture(int temp)
 
 //## slot area ##
 
-void IOT_Access_Server::disconnect_from_client()
+void IOT_Access_Server::disconnect_from_client ()
 {
     //만약 클라이언트에서 disconnect시그널이 왔을시에 라이브러리에서 disconnect함
     lib.disconnect_socket ();
@@ -61,7 +65,7 @@ void IOT_Access_Server::disconnect_from_client()
  *
  *
  * */
-void IOT_Access_Server::connect_socket()
+void IOT_Access_Server::connect_socket ()
 {
     try{
         /*
@@ -132,7 +136,6 @@ void IOT_Access_Server::connect_socket()
                 qDebug()<<"[Info] : set_tempture of BathRoom tempture : "<<obj["tempture"].toInt ();
                 set_room_tempture (obj["tempture"].toInt ());
                 break;
-
 
             }
 

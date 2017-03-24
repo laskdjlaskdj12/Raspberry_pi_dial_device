@@ -10,7 +10,10 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    iot_access_server.cpp
+    iot_access_server.cpp \
+    raspberry_device.cpp \
+    softPwm.c \
+    wiringPi.c
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -26,7 +29,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     iot_access_server.h \
     qt_json_socket_lib_global.h \
-    qt_json_socket_lib.h
+    qt_json_socket_lib.h \
+    softPwm.h \
+    wiringPi.h \
+    raspberry_device.h
 
 macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
 
