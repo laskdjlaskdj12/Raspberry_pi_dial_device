@@ -18,11 +18,11 @@ bool Raspberry_device::init_gpio()
             throw "wiringPi_Setup()_fail";
         }
 
-   //     pinMode(gpio_pine, OUTPUT);
+        pinMode(gpio_pin_number, OUTPUT);
 
-   //     digitalWrite(gpio_pine,LOW);
+        digitalWrite(gpio_pin_number,LOW);
 
-   //     softPwmCreate(gpio_pine, 0, 200);
+        softPwmCreate(gpio_pin_number, 0, 200);
 
     }catch(const QString e){
         qDebug()<<"[Error] : "<< e ;
@@ -38,7 +38,7 @@ bool Raspberry_device::set_gpio(int gpio_pine)
 void Raspberry_device::set_position(int position)
 {
     int angle = (position*21) / 100;
-  //  softPwmWrite(adjust_gpio, (angle+base_number));
+    softPwmWrite(gpio_pin_number, (angle+base_number));
 
     delay(50);
 }
