@@ -7,6 +7,8 @@
 #include <QtGlobal>
 #include <QHash>
 #include <QCryptographicHash>
+#include <wiringPi.h>
+#include <softPwm.h>
 
 
 class Device_class : public QObject
@@ -40,7 +42,10 @@ public slots:
 class Device_Exception
 {
 public:
+    Device_Exception(const QString& s);
     void operator ()(int type);
+    int get_error_code();
+    QString geT_error_string();
 
 };
 
@@ -49,7 +54,7 @@ class Moter: public Device_class
 {
 public:
     explicit Moter(QObject* parent = 0);
-            ~Moter();
+    virtual  ~Moter();
 
     virtual QString         get_device_name();
     virtual QString         get_device_type();
@@ -82,8 +87,10 @@ private:
     QString device_hash;
     QString identify_mobile_number;
     uint    device_gpio;
-    int     access_mobile_number;
     uint    random_number;
+    uint    min_range;
+    uint    max_range;
+    int     access_mobile_number;
     bool    device_active;
 
 
