@@ -9,6 +9,7 @@
 #include <QCryptographicHash>
 #include <wiringPi.h>
 #include <softPwm.h>
+#include "device_exception.h"
 
 
 class Device_class : public QObject
@@ -37,18 +38,6 @@ public slots:
 
 };
 
-
-//디바이스 exception 객체 함수로 변환함
-class Device_Exception
-{
-public:
-    Device_Exception(const QString& s);
-    void operator ()(int type);
-    int get_error_code();
-    QString geT_error_string();
-
-};
-
 //모터 클래스
 class Moter: public Device_class
 {
@@ -74,10 +63,10 @@ public:
 private:
     bool                     init_gpio();
     bool                     init_position();
-    bool                     set_position(int range);
+    bool                     set_position(uint range);
     int                      get_position();
 signals:
-
+    void device_error(int error_no);
 public slots:
 
 private:
@@ -86,6 +75,7 @@ private:
     QString device_pid;
     QString device_hash;
     QString identify_mobile_number;
+    uint    current_range;
     uint    device_gpio;
     uint    random_number;
     uint    min_range;

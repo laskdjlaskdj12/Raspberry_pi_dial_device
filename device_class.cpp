@@ -1,14 +1,14 @@
 #include "device_class.h"
-
 Device_class::Device_class(QObject *parent) : QObject(parent){}
 
 Device_class::~Device_class(){}
 
 Moter::Moter(QObject *parent):Device_class(parent)\
   ,device_active(false)\
-  ,random_number(0)\
   ,access_mobile_number(0)\
+  ,random_number(0)\
   ,device_gpio(0)\
+  ,current_range(0)\
   ,min_range(0)\
   ,max_range(0)\
   ,identify_mobile_number("NULL")\
@@ -28,6 +28,7 @@ void Moter::set_device_type(QString type){  device_type = type;}
 void Moter::set_device_gpio(int gpio_num){  device_gpio = gpio_num;}
 void Moter::set_identify_mobile_number(QString mobile_num){ identify_mobile_number = mobile_num;}
 bool Moter::is_active(){    return device_active;}
+void Moter::init_random_number(){   random_number = (uint)qrand();}
 
 bool Moter::is_number_match(int hash)
 {
@@ -36,35 +37,88 @@ bool Moter::is_number_match(int hash)
     }
     return false;
 }
-void Moter::init_random_number(){   random_number = (uint)qrand();}
-
 bool Moter::init_gpio()
 {
     try{
-    if(wiringPiSetup() == -1)
+        if(wiringPiSetup() == -1){ throw Device_Exception("wiringPiSetup()",__LINE__);}
 
-    pinMode(device_gpio, OUTPUT);
+        pinMode(device_gpio, OUTPUT);
 
-    digitalWrite(device_gpio,LOW);
+        digitalWrite(device_gpio,LOW);
 
-    softPwmCreate(device_gpio,0,200);
+        if(softPwmCreate(device_gpio,0,200) == -1){ throw Device_Exception("softPwmCreate",__LINE__);}
+
+        device_active = true;
+
+        return true;
 
     }catch(Device_Exception& e){
-
+        e.get_error_string ();
+        return false;
     }
 }
 
 bool Moter::init_position()
 {
+    try{
+        if( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__);}
 
+        softPwmWrite (device_gpio, min_range);
+
+        delay(50);
+
+        return true;
+
+    }catch(Device_Exception& e){
+        e.get_error_string ();
+        return false;
+    }
 }
 
-bool Moter::set_position(int range)
+bool Moter::set_position(uint range)
 {
+    try{
 
+        if( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__);}
+
+        if(range > max_range || range < min_range){
+
+            if(range > max_range){
+
+                current_range = max_range;
+
+                softPwmWrite (device_gpio, current_range);
+
+                delay(50);
+
+            }else{
+
+                current_range = min_range;
+
+                softPwmWrite (device_gpio, current_range);
+
+                delay(50);
+
+            }
+            return false;
+        }
+
+        current_range = range;
+
+        softPwmWrite (device_gpio, current_range);
+
+        delay(50);
+
+        return true;
+
+    }catch(Device_Exception& e){
+
+        e.get_error_string ();
+        return false;
+    }
 }
 
 int Moter::get_position()
 {
-
+    return current_range;
 }
