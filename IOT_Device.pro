@@ -1,4 +1,4 @@
-QT += core network
+QT += core network sql
 QT -= gui
 
 CONFIG += c++11
@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     device_class.cpp \
     softPwm.c \
     wiringPi.c \
-    device_exception.cpp
+    device_exception.cpp \
+    init_rasapberry.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -34,7 +35,8 @@ HEADERS += \
     device_class.h \
     softPwm.h \
     wiringPi.h \
-    device_exception.h
+    device_exception.h \
+    init_rasapberry.h
 
 macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
 
