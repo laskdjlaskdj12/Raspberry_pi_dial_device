@@ -21,7 +21,7 @@ void IOT_Access_Server::open_server(int port)
     qDebug()<<"[Info] : OpenServer ";
     qDebug()<<"[Info] : port :"<<port;
 
-    if(server->listen (QHostAddress::Any, port) != true){
+    if (server->listen (QHostAddress::Any, port) != true){
         qDebug()<<"[Info] : can't open server listen : "<<server->errorString ();
         return;
     }
@@ -85,19 +85,19 @@ void IOT_Access_Server::connect_socket()
         QJsonObject obj = doc.object ();
 
         //만약 doc가 recv받을때 null일 경우
-        if(doc.isNull ()){
+        if (doc.isNull ()){
             qDebug()<<"[Error] : can't convert QJsonDocument";
             obj["connect"] = false;
         }
 
         //만약 connect가 false일 경우
-        if(obj["connect"].isBool () != true){
+        if (obj["connect"].isBool () != true){
             qDebug()<<"[Info] : Error of receving Protocol";
             obj["connect"] = false;
         }
 
         //만약 json send가 false일 경우
-        if(lib.send_Json (obj) != true){
+        if (lib.send_Json (obj) != true){
             qDebug()<<"[Error] : send_Json is fail";
             throw lib.get_socket ()->error ();
         }
@@ -108,13 +108,13 @@ void IOT_Access_Server::connect_socket()
 
 
         //device조작 명령이 올경우
-        if(obj["device"].isNull () != true){
+        if (obj["device"].isNull () != true){
 
             //recv으로 조정을 함
             doc = lib.recv_Json ();
 
             //만약 doc가 읽을수 없을경우
-            if(doc.isNull ()){
+            if (doc.isNull ()){
                 qDebug()<<"[Error] : recv_Json protocol is fail";
                 throw lib.get_socket ()->error ();
             }
@@ -141,7 +141,7 @@ void IOT_Access_Server::connect_socket()
 
 
             //클라이언트로 전송
-            if(lib.send_Json (obj) != true){
+            if (lib.send_Json (obj) != true){
                 qDebug()<<"[Info] : send setting";
             }
 
@@ -160,11 +160,11 @@ void IOT_Access_Server::connect_socket()
         qDebug()<<"[Error] : server error "<<lib.get_socket ()->errorString ();
 
         //클라이언트에 전송이 가능할경우
-        if(lib.get_socket ()->isWritable ()){
+        if (lib.get_socket ()->isWritable ()){
             QJsonObject obj;
             obj["Message"] = "Protocol isn't readable";
 
-            if(lib.send_Json (obj) != true){
+            if (lib.send_Json (obj) != true){
                 qDebug()<<"[Error] : send_error log is fail";
             }
         }

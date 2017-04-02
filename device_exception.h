@@ -6,6 +6,7 @@
 #include <QSqlError>
 #include <QStringList>
 #include <QSqlQuery>
+#include <QDebug>
 
 enum Error_type{
     Error,
@@ -19,7 +20,6 @@ class Device_Exception
 {
 public:
     Device_Exception(const QString& s, int _Line_, Error_type type);
-    int             get_error_code();
     QString         get_error_string();
 
 private:

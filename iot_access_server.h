@@ -26,13 +26,18 @@ private:
     void set_room_tempture(int temp);
     void set_bathroom_tempture(int temp);
 
+signals:
+    void add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
+    void remove_raspberry_device (QString pid);
+
 public slots:
-    //만약 connection이 왔을때
     void disconnect_from_client();
+
+    //만약 connection이 왔을때
     void connect_socket();
+
 private:
     QTcpServer* server;
-    QThread     sock_thread;
 
     //만약 소켓이 accept를 할경우
     Qt_Json_Socket_Lib lib;

@@ -12,8 +12,6 @@ TEMPLATE = app
 SOURCES += main.cpp \
     iot_access_server.cpp \
     device_class.cpp \
-    softPwm.c \
-    wiringPi.c \
     device_exception.cpp \
     init_rasapberry.cpp
 
@@ -33,8 +31,6 @@ HEADERS += \
     qt_json_socket_lib_global.h \
     qt_json_socket_lib.h \
     device_class.h \
-    softPwm.h \
-    wiringPi.h \
     device_exception.h \
     init_rasapberry.h
 
@@ -42,3 +38,7 @@ macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-D
 
 INCLUDEPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug
 DEPENDPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug
+
+INCLUDEPATH += $$PWD/../../wiringpi/wiringPi/wiringPi
+
+

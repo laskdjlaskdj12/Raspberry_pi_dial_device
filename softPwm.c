@@ -23,7 +23,7 @@
  */
 
 #include <stdio.h>
-#include <malloc.h>
+#include <malloc/malloc.h>
 #include <pthread.h>
 
 #include "wiringPi.h"
