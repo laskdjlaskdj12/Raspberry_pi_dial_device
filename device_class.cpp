@@ -45,14 +45,15 @@ bool Moter::is_number_match(int hash)
 bool Moter::init_gpio()
 {
     try{
-        if (wiringPiSetup() == -1){ throw Device_Exception("wiringPiSetup()", __LINE__, Error_type::Error);}
+
+        /*if (wiringPiSetup() == -1){ throw Device_Exception("wiringPiSetup()", __LINE__, Error_type::Error);}
 
         pinMode(device_gpio, OUTPUT);
 
         digitalWrite(device_gpio,LOW);
 
         if (softPwmCreate(device_gpio,0,200) == -1){ throw Device_Exception("softPwmCreate",__LINE__, Error_type::Error);}
-
+*/
         device_active = true;
 
         return true;
@@ -68,9 +69,9 @@ bool Moter::init_position()
     try{
         if ( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__, Error_type::Warning);}
 
-        softPwmWrite (device_gpio, min_range);
+        //softPwmWrite (device_gpio, min_range);
 
-        delay(50);
+        //delay(50);
 
         return true;
 
@@ -86,7 +87,7 @@ bool Moter::set_position(uint range)
 
         if ( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__, Error_type::Warning);}
 
-        if (range > max_range || range < min_range){
+       /* if (range > max_range || range < min_range){
 
             if (range > max_range){
 
@@ -112,7 +113,7 @@ bool Moter::set_position(uint range)
 
         softPwmWrite (device_gpio, current_range);
 
-        delay(50);
+        delay(50);*/
 
         return true;
 

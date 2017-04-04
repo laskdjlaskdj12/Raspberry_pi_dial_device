@@ -61,7 +61,7 @@ int raspberry_control::init_raspberry ()
         QSqlQuery db_query(db);
         qDebug()<<"===================== RASPBERRY Device_states =====================";
 
-        if (wiringPiSetup () == -1){ throw "wiringPI_Setup is fail"; }
+        //if (wiringPiSetup () == -1){ throw "wiringPI_Setup is fail"; }
 
         if (db_query.exec ("SELECT * FROM `Device_list`;")!= true){     throw db_query.lastError (); }
 
@@ -69,7 +69,7 @@ int raspberry_control::init_raspberry ()
 
             qDebug()<<"[Device] : "<< db_query.value(1).toString ()<<" : "<<db_query.value (2).toString () <<" : GPIO : "<<db_query.value(5);
 
-            pinMode (db_query.value (5).toInt (), INPUT);
+            //pinMode (db_query.value (5).toInt (), INPUT);
 
         }
 
@@ -331,7 +331,7 @@ bool raspberry_control::remove_device(int pid)
 }
 
 // SLOT AREA
-void raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number)
+int raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number)
 {
     try{
 
@@ -374,23 +374,25 @@ void raspberry_control::add_raspberry_device(QString d_name, QString Type, QStri
         qDebug()<<"Raspberry device added successfuly";
         qDebug()<<"\n\n\n\n";
 
+        int pid = device_class->get_device_pid ().toInt ();
         delete device_class;
 
-        emit add_success (device_class->get_device_pid ().toInt ());
+        return pid;
 
     }catch(const QSqlError& e){
         qDebug()<<"[Error] : add_raspberry_device exception : "<<e.text ();
-        emit add_error ("Device_Sql_Error");
+        return -1;
 
     }catch(QString& e){
         QString mes = "[Error] : NO_Device : ";
         mes.append (e);
-        emit add_error(e);
+        return -1;
     }
 
 }
 
-void raspberry_control::remove_raspberry_device(QString pid)
+int raspberry_control::remove_raspberry_device(QString pid)
 {
     this->remove_device (pid.toInt ());
+    return 0;
 }

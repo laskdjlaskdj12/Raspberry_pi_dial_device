@@ -45,15 +45,11 @@ private:
     QString Create_pid();
     bool remove_device(int pid);
 
-signals:
-
-    void add_success(int pid);
-    void add_error(QString mes);
 public slots:
 
     //클라이언트에서 원격으로 라즈베리파이의 디바이스를 추가 이벤트시 slot
-    void add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
-    void remove_raspberry_device (QString pid);
+    int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
+    int remove_raspberry_device (QString pid);
 
 private:
     QSqlDatabase db;

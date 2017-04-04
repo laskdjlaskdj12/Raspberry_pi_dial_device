@@ -7,8 +7,8 @@
 #include <QtGlobal>
 #include <QHash>
 #include <QCryptographicHash>
-#include "softPwm.h"
-#include "wiringPi.h"
+//#include "softPwm.h"
+//#include "wiringPi.h"
 #include "device_exception.h"
 
 
