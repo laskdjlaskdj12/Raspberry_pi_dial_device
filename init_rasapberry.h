@@ -9,21 +9,22 @@
 #include <QStringList>
 #include <QDebug>
 #include <QCryptographicHash>
-#include <wiringPi.h>
-#include <device_class.h>
+#include "device_class.h"
+//#include <wiringPi.h>
+//#include <device_class.h>
 
 class init_rasapberry_control : public QObject
 {
     Q_OBJECT
 public:
     explicit init_rasapberry_control(QObject *parent = 0);
-    virtual ~init_rasapberry_control();
-    virtual int init_raspberry          () = 0;
-    virtual int check_raspberry_device  () = 0;
-    virtual int add_rasbperry_device    () = 0;
-    virtual int remove_raspberry_device () = 0;
-    virtual int show_device_list        () = 0;
-    virtual int show_device_info        () = 0;
+    virtual ~init_rasapberry_control      ();
+    virtual int init_raspberry__          () = 0;
+    virtual int check_raspberry_device__  () = 0;
+    virtual int add_raspberry_device__    () = 0;
+    virtual int remove_raspberry_device__ () = 0;
+    virtual int show_device_list__        () = 0;
+    virtual int show_device_info__        () = 0;
 
 
 };
@@ -33,13 +34,13 @@ class raspberry_control : public init_rasapberry_control
     Q_OBJECT
 public:
     explicit raspberry_control(QObject *parent = 0);
-    virtual ~raspberry_control          ();
-    virtual int init_raspberry          ();
-    virtual int check_raspberry_device  ();
-    virtual int add_rasbperry_device    ();
-    virtual int remove_raspberry_device ();
-    virtual int show_device_list        ();
-    virtual int show_device_info        ();
+    virtual ~raspberry_control            ();
+    virtual int init_raspberry__          ();
+    virtual int check_raspberry_device__  ();
+    virtual int add_raspberry_device__    ();
+    virtual int remove_raspberry_device__ ();
+    virtual int show_device_list__        ();
+    virtual int show_device_info__        ();
 
 private:
     QString Create_pid();
