@@ -16,7 +16,7 @@ public:
     ~Unit_test_class();
 
 private slots:
-    void device_class_get_name_test();
+    /*void device_class_get_name_test();
     void device_class_getdevice_type();
     void device_get_device_gpio();
     void device_get_device_pid();
@@ -27,7 +27,7 @@ private slots:
 
     void init_raspberry_control_test();
     void init_check_raspberry_device_test();
-    void add_raspberry_device_test();
+    void add_raspberry_device_test();*/
     void remove_raspberry_device_test();
     void show_device_list();
     void show_device_info();
@@ -54,7 +54,7 @@ Unit_test_class::~Unit_test_class()
 
 }
 
-void Unit_test_class::device_class_get_name_test ()
+/*void Unit_test_class::device_class_get_name_test ()
 {
     //QTest::addColumn<QString>("input_string");
 
@@ -113,7 +113,7 @@ void Unit_test_class::init_raspberry_control_test()
 void Unit_test_class::init_check_raspberry_device_test()
 {
     QSqlDatabase db;
-    if(QSqlDatabase::contains ("Device_List_Connection")){
+    if (QSqlDatabase::contains ("Device_List_Connection")){
         db = QSqlDatabase::database ("Device_List_Connection");
     }
     else{
@@ -121,7 +121,7 @@ void Unit_test_class::init_check_raspberry_device_test()
         db.setDatabaseName ("Device_list.db");
     }
 
-    if(db.open () != true){ qDebug()<<db.lastError ();}
+    if (db.open () != true){ qDebug()<<db.lastError ();}
 
     QCOMPARE(db.open (), true);
     QSqlQuery query(db);
@@ -143,12 +143,12 @@ void Unit_test_class::add_raspberry_device_test()
     //std::cin.read ("Moter_device",strlen("Moter_device"));
     //std::cin.read ("17",strlen("17"));
 
-}
+}*/
 
 void Unit_test_class::remove_raspberry_device_test()
 {
     QSqlDatabase db;
-    if(QSqlDatabase::contains ("Device_List_Connection")){
+    if (QSqlDatabase::contains ("Device_List_Connection")){
         db = QSqlDatabase::database ("Device_List_Connection");
     }
     else{

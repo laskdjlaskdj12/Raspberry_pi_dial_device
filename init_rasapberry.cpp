@@ -11,7 +11,7 @@ raspberry_control::raspberry_control(QObject *parent): init_rasapberry_control(p
     try{
 
         db = QSqlDatabase::addDatabase ("QSQLITE", "Device_List_Connection");
-        if(db.isValid () != true){
+        if (db.isValid () != true){
             throw db.lastError ();
         }
 
@@ -37,11 +37,10 @@ raspberry_control::raspberry_control(QObject *parent): init_rasapberry_control(p
                                "`device_hash`	TEXT NOT NULL,"
                                "`identify_mobile_number`	TEXT,"
                                "`device_gpio`	INTEGER,"
-                               "`min_range`	INTEGER,"
-                               "`max_range`	INTEGER,"
                                "`access_mobile_number`	INTEGER NOT NULL,"
                                "`device_active`	INTEGER NOT NULL,"
-                               "PRIMARY KEY(`device_pid`));") != true){ throw db_query.lastError (); }
+                               "PRIMARY KEY(`device_pid`)"
+                           ");") != true){ throw db_query.lastError (); }
 
 
         }
@@ -108,7 +107,7 @@ int raspberry_control::check_raspberry_device__()
 
         if (db_query.exec ("SELECT * FROM `Device_list`;")!= true){     throw db_query.lastError (); }
 
-        if(db_query.record ().count () == 0){
+        if (db_query.numRowsAffected () == 0){
             qDebug()<<"==========================================";
             qDebug()<<"NO MORE RECORD";
             qDebug()<<"==========================================";
@@ -202,7 +201,7 @@ int raspberry_control::add_raspberry_device__()
         qDebug()<<"[Debug] : Create_pid";
         QString pid = Create_pid ();
         qDebug()<<"[Debug] : Create_pid clear";
-        if(pid == "NULL"){
+        if (pid == "NULL"){
             throw QString("Create_pid_fail");
         }
 
@@ -216,12 +215,14 @@ int raspberry_control::add_raspberry_device__()
         //input device_info into class
         db_query.clear ();
 
-        db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`access_mobile_number`,`device_active`)"
-                          "VALUES (:type, :name, :pid, :hash :identify_mobile, :access_mobile, :device_active);");
+        db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`device_gpio`,`access_mobile_number`,`device_active`)"
+                          "VALUES (:type, :name, :pid, :hash, :identify_mobile, :gpio, :access_mobile, :device_active);");
         db_query.bindValue (":type", device_class->get_device_type ());
         db_query.bindValue (":name", device_class->get_device_name ());
         db_query.bindValue (":pid", device_class->get_device_pid ());
         db_query.bindValue (":hash", device_hash_res);
+        db_query.bindValue (":identify_mobile","NULL");
+        db_query.bindValue (":gpio",device_class->get_device_gpio ());
         db_query.bindValue (":access_mobile", 0);
         db_query.bindValue (":device_active",(int)true);
 
@@ -301,16 +302,21 @@ QString raspberry_control::Create_pid()
         do{
             rand = qrand();
 
-            db_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
+            qDebug()<<"[Debug]: rand :"<<rand;
+
+            db_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = (:pid) ;");
             db_query.bindValue (":pid", QString::number (rand));
 
             if (db_query.exec () != true){   throw db_query.lastError ();}
 
-            if (db_query.record ().count () != 0){
+            if (db_query.numRowsAffected () != 0){
+                qDebug()<<"[Debug]: record_count :"<<db_query.numRowsAffected ();
+                qDebug()<<"[Debug]: rand :"<<rand<<" rand fail";
                 continue;
             }
 
             else{
+                qDebug()<<"[Debug]: rand :"<<rand<<" rand success";
                 break;
             }
 
@@ -331,11 +337,11 @@ bool raspberry_control::remove_device(int pid)
         QSqlQuery sql_query(db);
 
         sql_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
-        sql_query.bindValue (":pid", pid);
+        sql_query.bindValue (":pid", QString::number (pid));
 
         if (sql_query.exec () != true){  throw sql_query.lastError ();}
 
-        if (sql_query.record ().count () == 0){
+        if (sql_query.numRowsAffected () == 0){
 
             qDebug()<<"[Info] : NO SUCH PID";
             return false;

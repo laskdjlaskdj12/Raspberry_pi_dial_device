@@ -104,7 +104,7 @@ void IOT_Access_Server::connect_socket()
 
 
         //addDevcie 일경우
-        if(obj["add_devcie"].isNull () != true){
+        if (obj["add_devcie"].isNull () != true){
 
             Device_class* add_device_type;
 
@@ -123,7 +123,7 @@ void IOT_Access_Server::connect_socket()
            add_device_type->set_device_name (obj["d_name"].toString ());
            add_device_type->set_identify_mobile_number (obj["d_access_number"].toString ());
 
-           if( emit add_raspberry_device (add_device_type->get_device_name ()\
+           if ( emit add_raspberry_device (add_device_type->get_device_name ()\
                                                 , add_device_type->get_device_type ()\
                                                 , add_device_type->get_identify_mobile_number ()\
                                                 , add_device_type->get_device_gpio ()\
@@ -133,8 +133,8 @@ void IOT_Access_Server::connect_socket()
 
 
 
-        }else if(obj["remove_device"].isNull () != true){
-            if(emit remove_raspberry_device (obj["pid"].toString ()) < 0){
+        }else if (obj["remove_device"].isNull () != true){
+            if (emit remove_raspberry_device (obj["pid"].toString ()) < 0){
                 throw QString("Server_Remove_Error");
             }
         }
