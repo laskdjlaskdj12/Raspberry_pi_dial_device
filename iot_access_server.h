@@ -5,8 +5,12 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QThread>
-#include "qt_json_socket_lib.h"
 #include <QMap>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include "qt_json_socket_lib.h"
+#include "device_class.h"
 
 /* 1. IOTDevcie는 Socket_Lib_test를 import를 함
  * 2. 만약 socket_Lib_test가 임포트가 안됬을 경우 QNetwrokAccessManager로 해결을 함
@@ -27,14 +31,13 @@ private:
     void set_bathroom_tempture(int temp);
 
 signals:
-    void add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
-    void remove_raspberry_device (QString pid);
+    int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
+    int remove_raspberry_device (QString pid);
 
 public slots:
     void disconnect_from_client();
-
-    //만약 connection이 왔을때
     void connect_socket();
+
 
 private:
     QTcpServer* server;

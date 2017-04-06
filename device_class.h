@@ -7,8 +7,8 @@
 #include <QtGlobal>
 #include <QHash>
 #include <QCryptographicHash>
-#include "softPwm.h"
-#include "wiringPi.h"
+//#include "softPwm.h"
+//#include "wiringPi.h"
 #include "device_exception.h"
 
 
@@ -30,10 +30,12 @@ public:
     virtual void            set_device_type(QString type)                     = 0;
     virtual void            set_device_gpio(int gpio_num)                     = 0;
     virtual void            set_device_pid(QString pid)                       = 0;
+    virtual void            set_device_hash(QString hash)                     = 0;
     virtual void            set_identify_mobile_number(QString mobile_num)    = 0;
     virtual bool            is_number_match(int p_num)                        = 0;
     virtual bool            is_active()                                       = 0;
-
+    virtual bool            start_active()                                    = 0;
+    virtual bool            stop_active()                                     = 0;
 signals:
 
 public slots:
@@ -61,18 +63,27 @@ public:
     virtual void            set_device_gpio(int gpio_num);
     virtual void            set_identify_mobile_number(QString mobile_num);
     virtual void            set_device_pid(QString pid);
+    virtual void            set_device_hash(QString hash);
+
 
     virtual bool            is_number_match(int p_num);
     virtual bool            is_active();
+    virtual bool            start_active();
+    virtual bool            stop_active();
 
     //디바이스 제어부분
+    bool                     set_moter_position(uint range);
+    int                      get_moter_position();
+
 private:
     bool                     init_gpio();
     bool                     init_position();
     bool                     set_position(uint range);
     int                      get_position();
+
 signals:
     void device_error(int error_no);
+
 public slots:
 
 private:

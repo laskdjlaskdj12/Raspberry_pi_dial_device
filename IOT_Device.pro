@@ -1,4 +1,4 @@
-QT += core network sql
+QT += core network sql testlib
 QT -= gui
 
 CONFIG += c++11
@@ -13,7 +13,9 @@ SOURCES += main.cpp \
     iot_access_server.cpp \
     device_class.cpp \
     device_exception.cpp \
-    init_rasapberry.cpp
+    init_rasapberry.cpp \
+    unit_test_class.cpp \
+    unit_test_for_db.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -32,7 +34,8 @@ HEADERS += \
     qt_json_socket_lib.h \
     device_class.h \
     device_exception.h \
-    init_rasapberry.h
+    init_rasapberry.h \
+    unit_test_for_db.h
 
 macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
 

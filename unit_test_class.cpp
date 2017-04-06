@@ -30,7 +30,11 @@ private slots:
 
     void init_raspberry_control_test();
     void init_check_raspberry_device_test();
+<<<<<<< HEAD
     void add_raspberry_device_test();
+=======
+    //void add_raspberry_device_test();
+>>>>>>> refs/heads/TDD_Branch
     void remove_raspberry_device_test();
     void show_device_list();
     void show_device_info();
@@ -139,10 +143,21 @@ void Unit_test_class::init_check_raspberry_device_test()
     QCOMPARE(control->check_raspberry_device__ (), 0);
 }
 
+<<<<<<< HEAD
 void Unit_test_class::add_raspberry_device_test()
 {
     QCOMPARE(control->add_raspberry_device__ (), 0);
 }
+=======
+/*void Unit_test_class::add_raspberry_device_test()
+{
+    QCOMPARE(control->add_raspberry_device__ (), 0);
+    //std::cin.read ("Moter",strlen("Moter"));
+    //std::cin.read ("Moter_device",strlen("Moter_device"));
+    //std::cin.read ("17",strlen("17"));
+
+}*/
+>>>>>>> refs/heads/TDD_Branch
 
 void Unit_test_class::remove_raspberry_device_test()
 {
