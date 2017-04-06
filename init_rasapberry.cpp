@@ -107,14 +107,19 @@ int raspberry_control::check_raspberry_device__()
 
         if (db_query.exec ("SELECT * FROM `Device_list`;")!= true){     throw db_query.lastError (); }
 
-        if (db_query.numRowsAffected () == 0){
+        db_query.last ();
+
+        if (db_query.at () + 1 == 0){
             qDebug()<<"==========================================";
             qDebug()<<"NO MORE RECORD";
             qDebug()<<"==========================================";
 
 
         }else{
-            while(db_query.next ()){
+
+            db_query.first ();
+
+            do{
                 qDebug()<<"==========================================";
                 qDebug()<<"[Device_Name] : "<<db_query.value(1).toString ();
                 qDebug()<<"[Device_Type] : "<<db_query.value (0).toString ();
@@ -122,7 +127,7 @@ int raspberry_control::check_raspberry_device__()
                 qDebug()<<"[Device_hash] : "<<db_query.value (3).toString ();
                 qDebug()<<"[Device_owner_number] : "<<db_query.value (4).toString ();
                 qDebug()<<"\n\n\n";
-            }
+            }while(db_query.next ());
         }
 
         db_query.clear ();
@@ -309,14 +314,16 @@ QString raspberry_control::Create_pid()
 
             if (db_query.exec () != true){   throw db_query.lastError ();}
 
-            if (db_query.numRowsAffected () != 0){
-                qDebug()<<"[Debug]: record_count :"<<db_query.numRowsAffected ();
-                qDebug()<<"[Debug]: rand :"<<rand<<" rand fail";
+            db_query.last ();
+
+            if (db_query.at () + 1 != 0){
+
                 continue;
             }
 
             else{
                 qDebug()<<"[Debug]: rand :"<<rand<<" rand success";
+
                 break;
             }
 
@@ -334,21 +341,33 @@ QString raspberry_control::Create_pid()
 bool raspberry_control::remove_device(int pid)
 {
     try{
+
         QSqlQuery sql_query(db);
 
+        if(db.isOpen () != true || db.isValid () != true){
+
+            qDebug()<<"[Debug] : db is not open ";
+            return -1;
+        }
+
+        qDebug()<<"[Debug]: rcv_pid : "<<QString::number(pid);
+
         sql_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
-        sql_query.bindValue (":pid", QString::number (pid));
+        sql_query.bindValue (":pid", QString::number(pid));
 
         if (sql_query.exec () != true){  throw sql_query.lastError ();}
 
-        if (sql_query.numRowsAffected () == 0){
+        sql_query.last ();
+
+        if (sql_query.at () + 1 == 0){
 
             qDebug()<<"[Info] : NO SUCH PID";
             return false;
         }
 
-        sql_query.prepare ("DELETE * FROM `Device_list` WHERE `device_pid` = :pid ;");
-        sql_query.bindValue (":pid", pid);
+        qDebug()<<"[Debug] : delete_pid";
+        sql_query.prepare ("DELETE FROM `Device_list` WHERE `device_pid` = :pid ;");
+        sql_query.bindValue (":pid", QString::number (pid));
 
         if (sql_query.exec () != true){  throw sql_query.lastError ();}
 
@@ -357,7 +376,7 @@ bool raspberry_control::remove_device(int pid)
         return true;
 
     }catch(const QSqlError& e){
-        qDebug()<<"[Error] : add_raspberry_device exception : "<<e.text ();
+        qDebug()<<"[Error] : remove_raspberry_device exception : "<<e.text ();
         return false;
     }
 }
@@ -377,7 +396,7 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
 
         device_class->set_device_gpio (gpio_number);
         device_class->set_device_name (d_name);
-        device_class->set_device_type ("Moter");
+        device_class->set_device_type (Type);
         device_class->set_device_pid (Create_pid ());
         device_class->set_identify_mobile_number (Device_owner_number);
 
@@ -390,12 +409,14 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         //input device_info into class
         db_query.clear ();
 
-        db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`current_range`,`device_gpio`,`min_range`,`max_range`,`access_mobile_number`,`device_active`)"
-                          "VALUES (:type, :name, :pid, :hash :identify_mobile, :current_range, :access_mobile, :device_active);");
+        db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`device_gpio`,`access_mobile_number`,`device_active`)"
+                          "VALUES (:type, :name, :pid, :hash, :identify_mobile, :gpio, :access_mobile, :device_active);");
         db_query.bindValue (":type", device_class->get_device_type ());
         db_query.bindValue (":name", device_class->get_device_name ());
         db_query.bindValue (":pid", device_class->get_device_pid ());
         db_query.bindValue (":hash", device_hash_res);
+        db_query.bindValue (":identify_mobile", device_class->get_identify_mobile_number ());
+        db_query.bindValue (":gpio", device_class->get_device_gpio ());
         db_query.bindValue (":access_mobile", device_class->get_access_mobile_number ());
         db_query.bindValue (":device_active",(int)true);
 

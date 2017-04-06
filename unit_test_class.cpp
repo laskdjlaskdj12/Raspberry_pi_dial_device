@@ -2,6 +2,9 @@
 #include <QtTest/QtTest>
 #include <QTest>
 #include <QFile>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 #include <iostream>
 #include "device_class.h"
 #include "init_rasapberry.h"
@@ -16,7 +19,7 @@ public:
     ~Unit_test_class();
 
 private slots:
-    /*void device_class_get_name_test();
+    void device_class_get_name_test();
     void device_class_getdevice_type();
     void device_get_device_gpio();
     void device_get_device_pid();
@@ -27,7 +30,7 @@ private slots:
 
     void init_raspberry_control_test();
     void init_check_raspberry_device_test();
-    void add_raspberry_device_test();*/
+    //void add_raspberry_device_test();
     void remove_raspberry_device_test();
     void show_device_list();
     void show_device_info();
@@ -54,7 +57,7 @@ Unit_test_class::~Unit_test_class()
 
 }
 
-/*void Unit_test_class::device_class_get_name_test ()
+void Unit_test_class::device_class_get_name_test ()
 {
     //QTest::addColumn<QString>("input_string");
 
@@ -136,7 +139,7 @@ void Unit_test_class::init_check_raspberry_device_test()
     QCOMPARE(control->check_raspberry_device__ (), 0);
 }
 
-void Unit_test_class::add_raspberry_device_test()
+/*void Unit_test_class::add_raspberry_device_test()
 {
     QCOMPARE(control->add_raspberry_device__ (), 0);
     //std::cin.read ("Moter",strlen("Moter"));
@@ -152,7 +155,7 @@ void Unit_test_class::remove_raspberry_device_test()
         db = QSqlDatabase::database ("Device_List_Connection");
     }
     else{
-        db.addDatabase ("QSQLITE");
+        db.addDatabase ("QSQLITE", "Device_List_Connection");
         db.setDatabaseName ("Device_list.db");
     }
 
@@ -162,13 +165,14 @@ void Unit_test_class::remove_raspberry_device_test()
 
     QCOMPARE(query.exec ("SELECT * FROM `Device_list`"), true);
 
-    if (query.record ().count () == 0 ){
+    query.last ();
+
+    if ((query.at () + 1) == 0){
         QCOMPARE(query.exec ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`access_mobile_number`,`device_active`)"
                              "VALUES(\"Moter \", \"helloMoter1 \",\"2\",\"h1234\",0,1);"), true);
     }
 
     QCOMPARE(control->remove_raspberry_device__ (), 0);
-    std::cin.read ("2",strlen("2"));
 }
 
 void Unit_test_class::show_device_list()
