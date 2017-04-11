@@ -33,6 +33,7 @@ private:
 signals:
     int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
     int remove_raspberry_device (QString pid);
+    int update_raspberry_devcie (QString pid, const QJsonObject obj);
 
 public slots:
     void disconnect_from_client();

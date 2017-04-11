@@ -133,9 +133,24 @@ void IOT_Access_Server::connect_socket()
 
 
 
-        }else if (obj["remove_device"].isNull () != true){
-            if (emit remove_raspberry_device (obj["pid"].toString ()) < 0){
-                throw QString("Server_Remove_Error");
+        }
+
+        else if (obj["remove_device"].isNull () != true){
+
+            if(obj["pid"].isNull ()){   throw QString("pid is not valid"); }
+
+            else{
+
+                if (emit remove_raspberry_device (obj["pid"].toString ()) != 0) { throw QString("remove device is fail");}
+            }
+        }
+
+        else if (obj["update_device"].isNull () != true){
+            if(obj["pid"].isNull ()){   throw QString("pid is not valid"); }
+
+            else{
+
+                if (emit update_raspberry_devcie (obj["pid"].toString (), obj) != 0) { throw QString("remove device is fail");}
             }
         }
 

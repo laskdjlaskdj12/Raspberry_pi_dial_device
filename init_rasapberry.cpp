@@ -381,6 +381,53 @@ bool raspberry_control::remove_device(int pid)
     }
 }
 
+int raspberry_control::update_device(int pid, const QJsonObject obj)
+{
+    try{
+
+        QSqlQuery sql_query(db);
+
+        if(db.isOpen () != true || db.isValid () != true){
+
+            qDebug()<<"[Debug] : db is not open ";
+            return -1;
+        }
+
+        qDebug()<<"[Debug]: rcv_pid : "<<QString::number(pid);
+
+        sql_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
+        sql_query.bindValue (":pid", QString::number(pid));
+
+        if (sql_query.exec () != true){  throw sql_query.lastError ();}
+
+        sql_query.last ();
+
+        if (sql_query.at () + 1 == 0){
+
+            qDebug()<<"[Info] : NO SUCH PID";
+            return 2;
+        }
+
+        qDebug()<<"[Debug] : delete_pid";
+        sql_query.prepare ("UPDATE `Device_list` SET `device_pid`= (:pid) WHERE `device_type`= (:type), `device_name`= (:name), `device_gpio`= (:gpio);");
+        sql_query.bindValue (":pid", QString::number (pid));
+        sql_query.bindValue (":type", obj["d_type"].toString ());
+        sql_query.bindValue (":name", obj["d_name"].toString ());
+        sql_query.bindValue (":gpio", obj["d_gpio"].toInt ());
+
+
+        if (sql_query.exec () != true){  throw sql_query.lastError ();}
+
+        qDebug()<<"[Info] : =================== Success delete ["<< pid <<"] ===================";
+
+        return 0;
+
+    }catch(const QSqlError& e){
+        qDebug()<<"[Error] : remove_raspberry_device exception : "<<e.text ();
+        return -1;
+    }
+}
+
 // SLOT AREA
 int raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number)
 {
@@ -446,6 +493,11 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
 
 int raspberry_control::remove_raspberry_device(QString pid)
 {
-    this->remove_device (pid.toInt ());
+    if(this->remove_device (pid.toInt ()) != true){ return -1;}
     return 0;
+}
+
+int raspberry_control::update_rapsberry_device(QString pid, const QJsonObject obj)
+{
+    return this->update_device (pid.toInt (), obj);
 }

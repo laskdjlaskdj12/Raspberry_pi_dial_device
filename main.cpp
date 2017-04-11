@@ -2,7 +2,7 @@
 #include "iot_access_server.h"
 #include "init_rasapberry.h"
 
-/*int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     QThread     sock_thread;
@@ -25,4 +25,4 @@
 
 
     return a.exec();
-}*/
+}

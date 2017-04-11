@@ -45,12 +45,16 @@ public:
 private:
     QString Create_pid();
     bool remove_device(int pid);
+    int update_device(int pid, const QJsonObject obj);
+
 
 public slots:
 
     //클라이언트에서 원격으로 라즈베리파이의 디바이스를 추가 이벤트시 slot
     int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
     int remove_raspberry_device (QString pid);
+    int update_rapsberry_device (QString pid, const QJsonObject obj);
+
 
 private:
     QSqlDatabase db;
