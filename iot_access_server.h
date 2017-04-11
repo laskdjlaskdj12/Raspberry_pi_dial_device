@@ -48,6 +48,10 @@ private:
 
     QMap<QString,int> device_list;
 
+    //db
+    QSqlDatabase db;
+
+    Device_class* adjust_device;
 
 };
 
