@@ -188,6 +188,7 @@ void IOT_Access_Server::connect_socket()
             if (sql_query.at () + 1 == 0){ throw QString ("No exsist pid");}
 
             sql_query.first ();
+
             res_type = sql_query.value (0).toString ();
 
 
@@ -205,6 +206,7 @@ void IOT_Access_Server::connect_socket()
                 adjust_device_moter->deleteLater ();
 
             } else {
+
                 throw QString("No Such Device type");
             }
 
