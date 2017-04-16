@@ -104,7 +104,11 @@ void IOT_Access_Server::connect_socket()
         */if (obj["connect"].isBool () != true){
             qDebug()<<"[Info] : Error of receving Protocol";
             obj["connect"] = false;
-        }/*
+        }
+
+        res_obj["connect"] = true;
+
+        /*
 
         //만약 json send가 false일 경우
         if (lib.send_Json (obj) != true){
