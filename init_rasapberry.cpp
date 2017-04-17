@@ -305,6 +305,10 @@ QString raspberry_control::Create_pid()
         int rand = 0;
 
         do{
+
+            //qsrand를 QTime의 currentTime시드값으로 변경함
+            qsrand(QTime::currentTime().msec());
+
             rand = qrand();
 
             qDebug()<<"[Debug]: rand :"<<rand;

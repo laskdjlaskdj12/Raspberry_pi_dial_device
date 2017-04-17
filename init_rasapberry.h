@@ -8,6 +8,7 @@
 #include <QSqlRecord>
 #include <QStringList>
 #include <QDebug>
+#include <QTime>
 #include <QCryptographicHash>
 #include "device_class.h"
 //#include <wiringPi.h>

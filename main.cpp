@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     QObject::connect (server, SIGNAL(add_raspberry_device(QString,QString,QString,int)), &ras_control, SLOT(add_raspberry_device(QString,QString,QString,int)));
     QObject::connect (server, SIGNAL(remove_raspberry_device(QString)), &ras_control, SLOT(remove_raspberry_device(QString)));
-    QObject::connect (server, SIGNAL(update_raspberry_devcie(QString,QJsonObject)), &ras_control, SLOT(update_rapsberry_device(QString,QJsonObject));
+    QObject::connect (server, SIGNAL(update_raspberry_devcie(QString,QJsonObject)), &ras_control, SLOT(update_rapsberry_device(QString,QJsonObject)));
 
     server->moveToThread (&sock_thread);
     //쓰레드 시작
