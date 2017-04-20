@@ -29,6 +29,7 @@ public:
 private:
     void set_room_tempture(int temp);
     void set_bathroom_tempture(int temp);
+    QJsonObject current_device_list();
 
 signals:
     int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
@@ -48,7 +49,7 @@ private:
 
     QMap<QString,int> device_list;
 
-    //db
+    //디바이스 저장 db
     QSqlDatabase db;
 
     Device_class* adjust_device;

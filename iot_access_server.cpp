@@ -51,6 +51,11 @@ void IOT_Access_Server::set_bathroom_tempture(int temp)
     qDebug()<<"[Info] : set bathroom tempture : "<<temp;
 }
 
+QJsonObject IOT_Access_Server::current_device_list()
+{
+
+}
+
 
 
 
