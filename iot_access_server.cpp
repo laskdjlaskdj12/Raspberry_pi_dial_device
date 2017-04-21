@@ -84,8 +84,8 @@ QJsonObject IOT_Access_Server::current_device_list()
             //만약 디바이스 타입 테이블에 대한 정보가 있을경우 디바이스 리스트에서 pid를 통해 검색
             if( db_device_list_query.value (0).toString () == "Moter"){
 
-                db_device_type_list_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
-                db_device_type_list_query.bindValue (":pid", db_device_type_list_query.value (2).toString ());
+                db_device_type_list_query.prepare ("SELECT * FROM `Moter_Table` WHERE `device_pid` = :pid ;");
+                db_device_type_list_query.bindValue (":pid", db_device_list_query.value (2).toString ());
 
                 if( db_device_type_list_query.exec () == false){ throw db_device_type_list_query.lastError (); }
 
@@ -294,6 +294,7 @@ void IOT_Access_Server::connect_socket()
                     throw QString("No setting Temptreu");
                 }
 
+                //pid를 검색
                 sql_query.prepare ("SELECT `device_type` FROM `Device_list` WHERE `device_pid` = :pid ;");
                 sql_query.bindValue (":pid", obj["d_pid"].toString ());
 
@@ -301,7 +302,7 @@ void IOT_Access_Server::connect_socket()
 
                 sql_query.last ();
 
-                //만약 pid결과가 검색이 되지않았을경우
+                //만약 pid결과가 검색이 되지않았을경우 예외처리
                 if (sql_query.at () + 1 == 0){ throw QString ("No exsist pid");}
 
                 sql_query.first ();
@@ -309,22 +310,43 @@ void IOT_Access_Server::connect_socket()
                 res_type = sql_query.value (0).toString ();
 
 
+                //만약 obj["adjust"] == set일경우
+                if(obj["adjust"].toString () == "set"){
 
-                if( device_list[res_type] == 0 ){
+                    //해당 디바이스의 타입클래스를 할당후 sql타입테이블로 input하여 조작
+                    if( device_list[res_type] == 0 ){
 
-                    Moter* adjust_device_moter = new Moter;
+                        Moter* adjust_device_moter = new Moter;
 
-                    adjust_device_moter->set_device_pid (res_type);
+                        adjust_device_moter->set_device_pid (res_type);
 
-                    adjust_device_moter->set_moter_position ((obj["tempture"].toInt () / 100) * 24);
+                        adjust_device_moter->set_moter_position ((obj["tempture"].toInt () / 100) * 24);
 
-                    res_obj["tempture"] = obj["tempture"].toInt ();
+                        res_obj["tempture"] = obj["tempture"].toInt ();
 
-                    adjust_device_moter->deleteLater ();
+                        adjust_device_moter->deleteLater ();
 
-                } else {
+                    } else {
 
-                    throw QString("No Such Device type");
+                        throw QString("No Such Device type");
+                    }
+
+                //만약 obj["adjust"] == get일경우 타입 테이블를 통해서 현재 range를 받음
+                }else if( obj["adjust"].toString () == "get"){
+
+                    sql_query.prepare ("SELECT * FROM `" + res_type + "_Table` WHERE `device_pid` = :pid ;");
+                    sql_query.bindValue (":pid", obj["d_pid"].toString ());
+
+                    if(sql_query.exec () == false){
+                        throw sql_query.lastError ().text ();
+                    }
+
+                    sql_query.first ();
+                    int device_current_range = sql_query.value (2).toInt ();
+                    int device_max_range = sql_query.value (4).toInt ();
+
+                    res_obj["tempture"] = (device_current_range /device_max_range) * 100;
+
                 }
 
             }
