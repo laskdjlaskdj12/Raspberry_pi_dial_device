@@ -17,7 +17,7 @@ IOT_Access_Server::IOT_Access_Server(QObject *parent) : QObject(parent)
         return;
     }
 
-    db.database ("Device_List_Connection");
+    db = QSqlDatabase::database ("Device_List_Connection");
 
     if (db.open () == false){   qDebug()<<"[Error]: Didn't open db"; return; }
 }
@@ -41,19 +41,71 @@ void IOT_Access_Server::open_server(int port)
 
 }
 
-void IOT_Access_Server::set_room_tempture(int temp)
+// WiringPi 통해 추가해야할 부분
+void IOT_Access_Server::set_room_tempture(QString pid, int temp)
 {
+
     qDebug()<<"[Info] : set romm tempture : "<<temp;
 }
 
-void IOT_Access_Server::set_bathroom_tempture(int temp)
+void IOT_Access_Server::set_bathroom_tempture(QString pid, int temp)
 {
     qDebug()<<"[Info] : set bathroom tempture : "<<temp;
 }
 
+//현재 디바이스 정보들을 로딩하여 전송
 QJsonObject IOT_Access_Server::current_device_list()
 {
+    try{
+        /*
+     * 1. 먼저 Device_List 테이블에 있는 디바이스 정보부터 쿼리를 통해 수집
+     * 2. pid를 통해 Type_List 테이블에 있는 디바이스 정보를 수집
+     * 3. 그것을 JSON화 팩토링을 통해서 전송
+     * 4. 에러가 났을시 NULL을 리턴
+     * */
 
+        QJsonObject device_list;
+        QJsonArray device_arr;
+        QJsonObject sub_device_list;
+        QSqlQuery db_device_list_query(db);
+        QSqlQuery db_device_type_list_query(db);
+
+        db_device_list_query.prepare ("SELECT * FROM `Device_list`");
+        if( db_device_list_query.exec () == false){ throw db_device_list_query.lastError (); }
+
+        while(db_device_list_query.next ()){
+
+            device_list["device_list"].toObject ()["d_type"] = db_device_list_query.value (0).toString ();
+            device_list["device_list"].toObject ()["d_name"] = db_device_list_query.value (1).toString ();
+            device_list["device_list"].toObject ()["d_pid"]  = db_device_list_query.value (2).toString ();
+            device_list["device_list"].toObject ()["d_gpio"] = db_device_list_query.value (3).toInt ();
+
+
+            //만약 디바이스 타입 테이블에 대한 정보가 있을경우 디바이스 리스트에서 pid를 통해 검색
+            if( db_device_list_query.value (0).toString () == "Moter"){
+
+                db_device_type_list_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
+                db_device_type_list_query.bindValue (":pid", db_device_type_list_query.value (2).toString ());
+
+                if( db_device_type_list_query.exec () == false){ throw db_device_type_list_query.lastError (); }
+
+                device_list["device_list"].toObject ()["d_range"] = db_device_type_list_query.value (2).toInt ();
+                device_list["device_list"].toObject ()["d_max_range"] = db_device_type_list_query.value (4).toInt ();
+                device_list["device_list"].toObject ()["d_min_range"] = db_device_type_list_query.value (5).toInt ();
+            }
+        }
+
+        return device_list;
+
+    }catch(QSqlError& e){
+
+        qDebug()<<"[Error] : " << e.text ();
+
+        QJsonObject err_obj;
+        err_obj["Error_String"] = e.text ();
+
+        return err_obj;
+    }
 }
 
 
@@ -157,9 +209,17 @@ void IOT_Access_Server::connect_socket()
 
             if (obj["add_devcie"].isNull () == false){
 
+                /*
+                 * 1. json["add_device"]의 섹션이 체크
+                 * 2. json["d_type"].tostring으로 디바이스 타입을 할당
+                 * 3. 디바이스 gpio, name, identify_mobile_number 를 설정
+                 * 4. add_raspberry_device의 signal를 emit -> slot에서 디바이스 추가시 타입부분별로 테이블을 만들어서 타입을 추가
+                 * 5. add_raspberry_device의 리턴 pid를 JsonObject로 저장해서 전송
+                 *
+                 * */
                 Device_class* add_device_type;
 
-                switch(device_list[obj["add_device"].toString ()]){
+                switch(device_list[obj["d_type"].toString ()]){
 
                 case 0:
                     add_device_type = new Moter;
@@ -175,16 +235,16 @@ void IOT_Access_Server::connect_socket()
                 add_device_type->set_identify_mobile_number (obj["d_access_number"].toString ());
 
                 int pid = emit add_raspberry_device (add_device_type->get_device_name ()\
-                                                , add_device_type->get_device_type ()\
-                                                , add_device_type->get_identify_mobile_number ()\
-                                                , add_device_type->get_device_gpio ()\
-                                                );
+                                                     , add_device_type->get_device_type ()\
+                                                     , add_device_type->get_identify_mobile_number ()\
+                                                     , add_device_type->get_device_gpio ()\
+                                                     );
 
                 if ( pid < 0 ) {
                     throw QString("Server_Add_Error");
                 }
 
-                //pid를 전송함
+                //클라이언트로 리턴할 pid를 설정
                 res_obj["pid"] = QString::number(pid);
 
 
@@ -204,11 +264,25 @@ void IOT_Access_Server::connect_socket()
 
             //디바이스가 update일 경우
             else if (obj["update_device"].isNull () == false){
+
                 if (obj["pid"].isNull ()){   throw QString("pid is not valid"); }
 
                 else{
 
                     if (emit update_raspberry_devcie (obj["pid"].toString (), obj) != 0) { throw QString("remove device is fail");}
+                }
+            }
+
+            //사용되고있는 디바이스 정보들을 로딩
+            else if(obj["device_info"].isNull () == false){
+
+                res_obj = current_device_list ();
+
+                //리턴값이 에러일경우
+                if(res_obj["Error_String"].isNull () == false){
+
+                    //에러값을 설정후 전달
+                    res_obj["Error"] = "Device_Info DataBase_Json_Error";
                 }
             }
 
@@ -252,58 +326,6 @@ void IOT_Access_Server::connect_socket()
 
                     throw QString("No Such Device type");
                 }
-
-
-
-
-
-
-
-                //디바이스 pid를 통해서 조작
-                /*
-             * 1. 디바이스를 pid로 검색
-             * 2. 디바이스 오브젝트 할당후 id를 바인딩함
-             * 3. 디바이스 오브젝트에 moter 작동 함수를 실
-             */
-
-
-                /*//recv으로 조정을 함
-            doc = lib.recv_Json ();
-
-            //만약 doc가 읽을수 없을경우
-            if (doc.isNull ()){
-                qDebug()<<"[Error] : recv_Json protocol is fail";
-                throw lib.get_socket ()->error ();
-            }
-
-            //수신받은 프로토콜을 QJsonObject로 변환함
-            obj = doc.object ();*/
-
-                //어떤 디바이스를 조작할지 명령을 정함
-
-                //디바이스 pid를 통해서 조작
-                /*
-             * 1. 디바이스를 pid로 검색
-             * 2. 디바이스 오브젝트 할당후 id를 바인딩함
-             * 3. 디바이스 오브젝트에 moter 작동 함수를 실
-             */
-
-                /*switch(device_list[obj["device"].toString ()]){
-
-            case 0:
-                qDebug()<<"[Info] : set_tempture of LivingRoom tempture : "<<obj["tempture"].toInt ();
-                set_room_tempture (obj["tempture"].toInt ());
-                break;
-            case 1:
-                qDebug()<<"[Info] : set_tempture of BathRoom tempture : "<<obj["tempture"].toInt ();
-                set_room_tempture (obj["tempture"].toInt ());
-                break;
-
-
-            }
-
-            //프로토콜 obj["connect"]로 설정
-            obj["connect"] = true;*/
 
             }
             //클라이언트로 전송

@@ -40,8 +40,7 @@ raspberry_control::raspberry_control(QObject *parent): init_rasapberry_control(p
                                "`access_mobile_number`	INTEGER NOT NULL,"
                                "`device_active`	INTEGER NOT NULL,"
                                "PRIMARY KEY(`device_pid`)"
-                           ");") != true){ throw db_query.lastError (); }
-
+                               ");") != true){ throw db_query.lastError (); }
 
         }
 
@@ -227,12 +226,17 @@ int raspberry_control::add_raspberry_device__()
         db_query.bindValue (":pid", device_class->get_device_pid ());
         db_query.bindValue (":hash", device_hash_res);
         db_query.bindValue (":identify_mobile","NULL");
-        db_query.bindValue (":gpio",device_class->get_device_gpio ());
+        db_query.bindValue (":gpio", device_class->get_device_gpio ());
         db_query.bindValue (":access_mobile", 0);
         db_query.bindValue (":device_active",(int)true);
 
         if (db_query.exec () != true){   throw db_query.lastError (); }
 
+        //디바이스 타입 테이블에 저장
+        if( add_device_type_table (device_class->get_device_name (), device_class->get_device_type (), device_class->get_device_gpio (), device_class->get_device_pid ()) < 0 ){
+
+            throw QString("add_Device_Type_Table is fail");
+        }
 
         qDebug()<<"===================== Congraturation  =====================";
         qDebug()<<"Raspberry device added successfuly";
@@ -240,9 +244,7 @@ int raspberry_control::add_raspberry_device__()
 
         delete device_class;
 
-        return 0;
-
-
+        return pid.toInt ();
 
     }catch(const QSqlError& e){
 
@@ -346,6 +348,11 @@ bool raspberry_control::remove_device(int pid)
 {
     try{
 
+        /*
+         * 1. 디바이스 pid로 Device_list 테이블에서 디바이스를 제거
+         * 2. 디바이스 pid로 pid::Type_list 테이블에서 디바이스를 제거
+         *
+         * */
         QSqlQuery sql_query(db);
 
         if(db.isOpen () != true || db.isValid () != true){
@@ -363,14 +370,28 @@ bool raspberry_control::remove_device(int pid)
 
         sql_query.last ();
 
+        //디바이스가 없을경우
         if (sql_query.at () + 1 == 0){
 
             qDebug()<<"[Info] : NO SUCH PID";
             return false;
         }
 
+        //만약 디바이스가 있을경우 디바이스 타입을 먼저 저장
+        sql_query.first ();
+
+        //디바이스 타입을 저장
+        QString d_type = sql_query.value (0).toString ();
+
+        //Device_list 테이블에 있는 디바이스 삭제
         qDebug()<<"[Debug] : delete_pid";
         sql_query.prepare ("DELETE FROM `Device_list` WHERE `device_pid` = :pid ;");
+        sql_query.bindValue (":pid", QString::number (pid));
+
+        if (sql_query.exec () != true){  throw sql_query.lastError ();}
+
+        //d_type + _list테이블에 있는 디바이스 삭제
+        sql_query.prepare ("DELETE FROM `" + d_type + "_Table` WHERE `device_pid` = :pid ;");
         sql_query.bindValue (":pid", QString::number (pid));
 
         if (sql_query.exec () != true){  throw sql_query.lastError ();}
@@ -432,6 +453,87 @@ int raspberry_control::update_device(int pid, const QJsonObject obj)
     }
 }
 
+//디바이스 타입 테이블에 해당 타입 디바이스 를 저장
+int raspberry_control::add_device_type_table(QString d_name, QString d_type, int gpio_number, QString pid)
+{
+    try{
+
+        /*
+     * 1. 해당 타입의 디바이스 테이블이 있는지 체크
+     * 1-1. DB이름 d_type + "_Device_Table.db"
+     * 1-2. DB오픈이름 d_type + "_Table"
+     * 1-3. DB테이블이름 d_type + "_Table"
+     * 2. 만약 디바이스 테이블이 없을경우 생성
+     * 3. 테이블에 INSERT 쿼리를 입력후 QSqlDatabase를 종료
+     *
+     * */
+
+        QString DB_file_name = d_type + "_Device_Table.db";
+        QString DB_open_name = d_type + "_Table";
+        QString DB_Table_name = d_type + "_Table";
+
+        //테이블 찾기
+        QStringList device_table = db.tables ();
+        bool is_table_exsist = false;
+
+        foreach (const QString &str, device_table) {
+
+            if (DB_Table_name ==  str){   is_table_exsist = true;}
+        }
+
+        QSqlQuery db_query(db);
+
+        //만약 테이블이 존재하지 않는다면 테이블을 생성
+        if(is_table_exsist == false){
+
+            //만약 모터타입일경우 테이블에 range를 기록함
+            if(d_type == "Moter"){
+
+                if (db_query.exec ("CREATE TABLE `"+ DB_Table_name +"` ("
+                                   "`device_name`	TEXT NOT NULL,"
+                                   "`device_pid`	TEXT NOT NULL,"
+                                   "`current_range` INTEGER NOT NULL,"
+                                   "`device_gpio`   INTEGER NOT NULL,"
+                                   "`MAX_range`     INTEGER,"
+                                   "`MIN_range`     INTEGER,"
+                                   "`device_active`	INTEGER NOT NULL,"
+                                   "PRIMARY KEY(`device_pid`)"
+                                   ");") != true){ throw db_query.lastError (); }
+            }
+
+            else{
+
+                //모터 타입이 아닐시 예외처리
+                throw QString("This device is not support of table adding : " + d_type);
+            }
+        }
+
+        //해당 디바이스에 저장
+        db_query.prepare ("INSERT INTO `"+ DB_Table_name +"` (`device_name`, `device_pid`, `current_range`, `device_gpio`, `device_active`)"
+                          "VALUES (:name, :pid, :range, :gpio, :device_active);");
+
+        db_query.bindValue (":name", d_name);
+        db_query.bindValue (":pid",  pid);
+        db_query.bindValue (":range", 0);
+        db_query.bindValue (":gpio", gpio_number);
+        db_query.bindValue (":device_active", (int)true);
+
+        //db_query를 실행으로 저장
+        if(db_query.exec () == false){ throw db_query.lastError ();}
+
+        //리턴값은 0
+        return 0;
+
+    }catch(const QSqlError& e){
+
+        qDebug()<<"[Error] : raspberry_control exception : "<<e.text ();
+        return -1;
+    }catch(const QString e){
+        qDebug()<<"[Error] : "<<e;
+        return -1;
+    }
+}
+
 // SLOT AREA
 int raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number)
 {
@@ -440,7 +542,7 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         QSqlQuery db_query(db);
 
         if (Type != "Moter"){
-            throw "NO_MOTER";
+            throw "NO_SEARCH_TYPE";
         }
 
         Device_class* device_class = new Moter;
@@ -460,6 +562,7 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         //input device_info into class
         db_query.clear ();
 
+        //디바이스 리스트에 해당 디바이스를 추가
         db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`device_gpio`,`access_mobile_number`,`device_active`)"
                           "VALUES (:type, :name, :pid, :hash, :identify_mobile, :gpio, :access_mobile, :device_active);");
         db_query.bindValue (":type", device_class->get_device_type ());
@@ -473,6 +576,8 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
 
         if (db_query.exec () != true){   throw db_query.lastError (); }
 
+        //해당 디바이스 타입 테이블을 만들어서 저장
+        if( add_device_type_table (d_name, Type, gpio_number, device_class->get_device_pid ()) < 0){ throw "ERROR_FOR_ADD_DEVICE_TABLE" ;}
 
         qDebug()<<"===================== Congraturation  =====================";
         qDebug()<<"Raspberry device added successfuly";
@@ -488,8 +593,10 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         return -1;
 
     }catch(QString& e){
+
         QString mes = "[Error] : NO_Device : ";
         mes.append (e);
+
         return -1;
     }
 

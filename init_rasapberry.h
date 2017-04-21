@@ -48,6 +48,8 @@ private:
     bool remove_device(int pid);
     int update_device(int pid, const QJsonObject obj);
 
+    //디바이스 타입별로 테이블에 저장
+    int add_device_type_table(QString d_name, QString Type, int gpio_number, QString pid);
 
 public slots:
 
@@ -62,6 +64,10 @@ private:
     QString table_name;
     bool is_table_exsist;
     int device_list_size;
+
+    //디바이스 타입 리스트
+    QList<QString> type_list_;
+
 
 };
 

@@ -11,6 +11,10 @@
 #include <QSqlQuery>
 #include "qt_json_socket_lib.h"
 #include "device_class.h"
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonValue>
 
 /* 1. IOTDevcie는 Socket_Lib_test를 import를 함
  * 2. 만약 socket_Lib_test가 임포트가 안됬을 경우 QNetwrokAccessManager로 해결을 함
@@ -27,8 +31,8 @@ public:
     void open_server(int port);
 
 private:
-    void set_room_tempture(int temp);
-    void set_bathroom_tempture(int temp);
+    void set_room_tempture(QString pid, int temp);
+    void set_bathroom_tempture(QString pid, int temp);
     QJsonObject current_device_list();
 
 signals:
@@ -53,6 +57,7 @@ private:
     QSqlDatabase db;
 
     Device_class* adjust_device;
+
 
 };
 
