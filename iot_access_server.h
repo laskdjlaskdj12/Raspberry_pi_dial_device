@@ -9,6 +9,7 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include "init_rasapberry.h"
 #include "qt_json_socket_lib.h"
 #include "device_class.h"
 #include <QJsonObject>
@@ -36,14 +37,14 @@ private:
     QJsonObject current_device_list();
 
 signals:
-    int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number);
+    int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number, QString pid);
     int remove_raspberry_device (QString pid);
     int update_raspberry_devcie (QString pid, const QJsonObject obj);
 
 public slots:
     void disconnect_from_client();
     void connect_socket();
-
+    void open_server();
 
 private:
     QTcpServer* server;

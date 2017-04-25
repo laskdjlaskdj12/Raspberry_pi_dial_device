@@ -303,6 +303,15 @@ int raspberry_control::show_device_info__()
 QString raspberry_control::Create_pid()
 {
     try{
+
+        //만약 contain시 Devcie_List_connect이 없을경우 return함
+        if (QSqlDatabase::contains ("Device_List_Connection") == false){
+            qDebug()<<"[Error]: Didn't find QSqlDatabase";
+            return QString::null;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database ("Device_List_Connection");
+
         QSqlQuery db_query(db);
         int rand = 0;
 
@@ -322,7 +331,7 @@ QString raspberry_control::Create_pid()
 
             db_query.last ();
 
-            if (db_query.at () + 1 != 0){
+            if (db_query.at () + 1 > 0){
 
                 continue;
             }
@@ -471,6 +480,8 @@ int raspberry_control::add_device_type_table(QString d_name, QString d_type, int
         QString DB_file_name = d_type + "_Device_Table.db";
         QString DB_open_name = d_type + "_Table";
         QString DB_Table_name = d_type + "_Table";
+        int min_ragne_default = 4;
+        int max_range_default = 25;
 
         //테이블 찾기
         QStringList device_table = db.tables ();
@@ -509,19 +520,20 @@ int raspberry_control::add_device_type_table(QString d_name, QString d_type, int
         }
 
         //해당 디바이스에 저장
-        db_query.prepare ("INSERT INTO `"+ DB_Table_name +"` (`device_name`, `device_pid`, `current_range`, `device_gpio`, `device_active`)"
-                          "VALUES (:name, :pid, :range, :gpio, :device_active);");
+        db_query.prepare ("INSERT INTO `"+ DB_Table_name +"` (`device_name`, `device_pid`, `current_range`, `MAX_range`,`MIN_range`, `device_gpio`, `device_active`)"
+                                                          "VALUES (:name, :pid, :range, :max_range, :min_range, :gpio, :device_active);");
 
         db_query.bindValue (":name", d_name);
         db_query.bindValue (":pid",  pid);
         db_query.bindValue (":range", 0);
+        db_query.bindValue (":max_range", max_range_default);
+        db_query.bindValue (":min_range", min_ragne_default);
         db_query.bindValue (":gpio", gpio_number);
         db_query.bindValue (":device_active", (int)true);
 
         //db_query를 실행으로 저장
         if(db_query.exec () == false){ throw db_query.lastError ();}
 
-        //리턴값은 0
         return 0;
 
     }catch(const QSqlError& e){
@@ -535,7 +547,7 @@ int raspberry_control::add_device_type_table(QString d_name, QString d_type, int
 }
 
 // SLOT AREA
-int raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number)
+int raspberry_control::add_raspberry_device(QString d_name, QString Type, QString Device_owner_number, int gpio_number, QString d_pid)
 {
     try{
 
@@ -550,7 +562,7 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         device_class->set_device_gpio (gpio_number);
         device_class->set_device_name (d_name);
         device_class->set_device_type (Type);
-        device_class->set_device_pid (Create_pid ());
+        device_class->set_device_pid (d_pid);
         device_class->set_identify_mobile_number (Device_owner_number);
 
 

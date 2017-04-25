@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    QThread     sock_thread;
+    QThread*     sock_thread = new QThread;
 
     raspberry_control ras_control;
     IOT_Access_Server* server = new IOT_Access_Server;     //서버는 컨트롤 패널없이 계속 돌아감
@@ -14,10 +14,13 @@ int main(int argc, char *argv[])
     QObject::connect (server, SIGNAL(remove_raspberry_device(QString)), &ras_control, SLOT(remove_raspberry_device(QString)));
     QObject::connect (server, SIGNAL(update_raspberry_devcie(QString,QJsonObject)), &ras_control, SLOT(update_rapsberry_device(QString,QJsonObject)));
 
-    server->moveToThread (&sock_thread);
+    //쓰레드 start 시그널을 server의 open_server 슬롯으로 바인딩
+    QObject::connect (sock_thread, SIGNAL(started()), server, SLOT(open_server()));
+
+
+    server->moveToThread (sock_thread);
     //쓰레드 시작
-    sock_thread.start ();
-    server->open_server (43100);
+    sock_thread->start ();
 
     qDebug()<<"===================== RASPBERRY Control_Panel =====================";
     qDebug()<<"[1] check_raspberry_device";

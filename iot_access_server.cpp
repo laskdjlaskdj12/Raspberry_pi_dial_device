@@ -170,7 +170,7 @@ void IOT_Access_Server::connect_socket()
 
         //만약 connect가 false일 경우
 
-        if (obj["connect"].isBool () == false){
+        if (obj["connect"].isNull () == true){
             qDebug()<<"[Info] : Error of receving Protocol";
             res_obj["connect"] = false;
         }
@@ -207,16 +207,21 @@ void IOT_Access_Server::connect_socket()
                 obj["connect"] = false;
             }
 
-            if (obj["add_devcie"].isNull () == false){
+            //현재 들어온 obj를 현재 들어온 obj으로 변환
+            obj = doc.object ();
+
+            if (obj["add_device"].isNull () == false){
 
                 /*
                  * 1. json["add_device"]의 섹션이 체크
                  * 2. json["d_type"].tostring으로 디바이스 타입을 할당
-                 * 3. 디바이스 gpio, name, identify_mobile_number 를 설정
-                 * 4. add_raspberry_device의 signal를 emit -> slot에서 디바이스 추가시 타입부분별로 테이블을 만들어서 타입을 추가
-                 * 5. add_raspberry_device의 리턴 pid를 JsonObject로 저장해서 전송
+                 * 3. pid를 static Create_pid()으로 pid를 먼저 할당
+                 * 4. 디바이스 gpio, name, identify_mobile_number, pid 를 설정
+                 * 5. add_raspberry_device의 signal를 emit -> slot에서 디바이스 추가시 타입부분별로 테이블을 만들어서 타입을 추가
+                 * 6. add_raspberry_device의 리턴 pid를 JsonObject로 저장해서 전송
                  *
                  * */
+
                 Device_class* add_device_type;
 
                 switch(device_list[obj["d_type"].toString ()]){
@@ -225,6 +230,7 @@ void IOT_Access_Server::connect_socket()
                     add_device_type = new Moter;
                     add_device_type->set_device_type ("Moter");
                     break;
+
                 default:
                     throw QString("This Device not support");
                     break;
@@ -234,18 +240,21 @@ void IOT_Access_Server::connect_socket()
                 add_device_type->set_device_name (obj["d_name"].toString ());
                 add_device_type->set_identify_mobile_number (obj["d_access_number"].toString ());
 
-                int pid = emit add_raspberry_device (add_device_type->get_device_name ()\
-                                                     , add_device_type->get_device_type ()\
-                                                     , add_device_type->get_identify_mobile_number ()\
-                                                     , add_device_type->get_device_gpio ()\
-                                                     );
+                QString pid = raspberry_control::Create_pid ();
+
+                emit add_raspberry_device (add_device_type->get_device_name ()\
+                                           , add_device_type->get_device_type ()\
+                                           , add_device_type->get_identify_mobile_number ()\
+                                           , add_device_type->get_device_gpio ()\
+                                           , pid
+                                           );
 
                 if ( pid < 0 ) {
                     throw QString("Server_Add_Error");
                 }
 
                 //클라이언트로 리턴할 pid를 설정
-                res_obj["pid"] = QString::number(pid);
+                res_obj["pid"] = pid;
 
 
 
@@ -274,7 +283,7 @@ void IOT_Access_Server::connect_socket()
             }
 
             //사용되고있는 디바이스 정보들을 로딩
-            else if(obj["device_info"].isNull () == false){
+            else if(obj["load_device_info"].isNull () == false){
 
                 res_obj = current_device_list ();
 
@@ -282,7 +291,7 @@ void IOT_Access_Server::connect_socket()
                 if(res_obj["Error_String"].isNull () == false){
 
                     //에러값을 설정후 전달
-                    res_obj["Error"] = "Device_Info DataBase_Json_Error";
+                    res_obj["Message함"] = "Device_Info DataBase_Json_Error";
                 }
             }
 
@@ -331,7 +340,7 @@ void IOT_Access_Server::connect_socket()
                         throw QString("No Such Device type");
                     }
 
-                //만약 obj["adjust"] == get일경우 타입 테이블를 통해서 현재 range를 받음
+                    //만약 obj["adjust"] == get일경우 타입 테이블를 통해서 현재 range를 받음
                 }else if( obj["adjust"].toString () == "get"){
 
                     sql_query.prepare ("SELECT * FROM `" + res_type + "_Table` WHERE `device_pid` = :pid ;");
@@ -350,15 +359,15 @@ void IOT_Access_Server::connect_socket()
                 }
 
             }
-            //클라이언트로 전송
-            if (lib.send_Json (res_obj) == false){
-                qDebug()<<"[Info] : send setting";
-            }
-
-            //클라이언트 disconnect
-            qDebug()<<"[Info] : disconnect client";
-
         }
+        //클라이언트로 전송
+        if (lib.send_Json (res_obj) == false){
+            qDebug()<<"[Info] : send setting";
+        }
+
+        //클라이언트 disconnect
+        qDebug()<<"[Info] : disconnect client";
+
 
         //클라이언트 disconnect를 함
         lib.disconnect_socket ();
@@ -396,6 +405,11 @@ void IOT_Access_Server::connect_socket()
         //클라이언트를 disconnect함
         lib.disconnect_socket ();
     }
+}
+
+void IOT_Access_Server::open_server()
+{
+    open_server (43100);
 }
 
 
