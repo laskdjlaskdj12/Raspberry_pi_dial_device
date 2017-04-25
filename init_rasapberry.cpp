@@ -324,7 +324,7 @@ QString raspberry_control::Create_pid()
 
             qDebug()<<"[Debug]: rand :"<<rand;
 
-            db_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = (:pid) ;");
+            db_query.prepare ("q");
             db_query.bindValue (":pid", QString::number (rand));
 
             if (db_query.exec () != true){   throw db_query.lastError ();}

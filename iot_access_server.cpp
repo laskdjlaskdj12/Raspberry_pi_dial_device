@@ -65,35 +65,61 @@ QJsonObject IOT_Access_Server::current_device_list()
      * */
 
         QJsonObject device_list;
-        QJsonArray device_arr;
-        QJsonObject sub_device_list;
+        QJsonArray _device_array_;
+
         QSqlQuery db_device_list_query(db);
         QSqlQuery db_device_type_list_query(db);
 
-        db_device_list_query.prepare ("SELECT * FROM `Device_list`");
+        db_device_list_query.prepare ("SELECT `device_type`, `device_name`, `device_pid`, `device_gpio` FROM `Device_list` ");
         if( db_device_list_query.exec () == false){ throw db_device_list_query.lastError (); }
 
         while(db_device_list_query.next ()){
 
-            device_list["device_list"].toObject ()["d_type"] = db_device_list_query.value (0).toString ();
-            device_list["device_list"].toObject ()["d_name"] = db_device_list_query.value (1).toString ();
-            device_list["device_list"].toObject ()["d_pid"]  = db_device_list_query.value (2).toString ();
-            device_list["device_list"].toObject ()["d_gpio"] = db_device_list_query.value (3).toInt ();
+            QJsonObject _cur_div_;
+
+            _cur_div_["d_type"] = db_device_list_query.value (0).toString ();
+            _cur_div_["d_name"] = db_device_list_query.value (1).toString ();
+            _cur_div_["d_pid"]  = db_device_list_query.value (2).toString ();
+            _cur_div_["d_gpio"] = db_device_list_query.value (3).toInt ();
 
 
             //만약 디바이스 타입 테이블에 대한 정보가 있을경우 디바이스 리스트에서 pid를 통해 검색
             if( db_device_list_query.value (0).toString () == "Moter"){
 
-                db_device_type_list_query.prepare ("SELECT * FROM `Moter_Table` WHERE `device_pid` = :pid ;");
+                db_device_type_list_query.prepare ("SELECT * FROM `Moter_Table` WHERE `device_pid` = (:pid) ;");
                 db_device_type_list_query.bindValue (":pid", db_device_list_query.value (2).toString ());
 
                 if( db_device_type_list_query.exec () == false){ throw db_device_type_list_query.lastError (); }
 
-                device_list["device_list"].toObject ()["d_range"] = db_device_type_list_query.value (2).toInt ();
-                device_list["device_list"].toObject ()["d_max_range"] = db_device_type_list_query.value (4).toInt ();
-                device_list["device_list"].toObject ()["d_min_range"] = db_device_type_list_query.value (5).toInt ();
+                //next를 통해서 다음 쿼리로 넘김
+                db_device_type_list_query.last ();
+
+                if(db_device_type_list_query.at () + 1 < 0){
+                    qDebug()<<"[Error] : query size is : "<<db_device_type_list_query.at () + 1 <<" reason : "<<db.lastError ().text ();
+                }
+
+                db_device_type_list_query.first ();
+                qDebug()<< "==================== DataBase object ===========================";
+                qDebug()<<"[d_pid] : "<< db_device_list_query.value (2).toString ();
+                qDebug()<<"[d_range] : " << db_device_type_list_query.value (2).toInt ();
+                qDebug()<<"[d_max_range] : " << db_device_type_list_query.value (4).toInt ();
+                qDebug()<<"[d_min_range] : " << db_device_type_list_query.value (5).toInt ();
+
+                _cur_div_["d_range"] =     db_device_type_list_query.value (2).toInt ();
+                _cur_div_["d_max_range"] = db_device_type_list_query.value (4).toInt ();
+                _cur_div_["d_min_range"] = db_device_type_list_query.value (5).toInt ();
             }
+
+            QJsonValue test_value = _cur_div_;
+            _device_array_.append (test_value);
+
         }
+
+        device_list["device_list"] = _device_array_;
+
+        //json 파서가 된것을 디버그 창
+        qDebug()<<"===================== load QJsonObject =====================";
+        qDebug()<<QString (QJsonDocument(device_list).toJson ());
 
         return device_list;
 
@@ -256,6 +282,7 @@ void IOT_Access_Server::connect_socket()
                 //클라이언트로 리턴할 pid를 설정
                 res_obj["pid"] = pid;
 
+                add_device_type->deleteLater ();
 
 
             }
@@ -291,7 +318,7 @@ void IOT_Access_Server::connect_socket()
                 if(res_obj["Error_String"].isNull () == false){
 
                     //에러값을 설정후 전달
-                    res_obj["Message함"] = "Device_Info DataBase_Json_Error";
+                    res_obj["Message"] = "Device_Info DataBase_Json_Error";
                 }
             }
 
