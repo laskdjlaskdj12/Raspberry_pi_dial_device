@@ -40,6 +40,7 @@ bool Moter::start_active()
     if(this->init_gpio () != true || this->init_position () != true){
         return false;
     }
+    device_active = true;
 
     return true;
 }
@@ -52,13 +53,35 @@ bool Moter::stop_active(){
 bool Moter::set_moter_position(uint range){  return set_position (range);}
 
 int Moter::get_moter_position(){    return get_position();}
+
+bool Moter::set_init_wiring_pi()
+{
+    try{
+        if( init_gpio () == false){ throw Device_Exception ("wiringPiSetup and init_gpio is fail", __LINE__, Error_type::Error);}
+
+        if( init_position () == false){ throw Device_Exception("wiringPi_position is fail", __LINE__, Error_type::Error);}
+
+        return true;
+
+    }catch(Device_Exception& e){
+        e.get_error_string ();
+        return false;
+    }
+
+}
 void Moter::init_random_number(){   random_number = (uint)qrand();}
 
 bool Moter::is_number_match(int hash)
 {
-    if (device_hash == hash){
+    QCryptographicHash Device_hash_gen(QCryptographicHash::Algorithm::Sha512);
+    Device_hash_gen.addData (QString::number(hash).toUtf8 ());
+    QByteArray device_hash_res = Device_hash_gen.result ();
+
+
+    if (device_hash == QString(device_hash_res)){
         return true;
     }
+
     return false;
 }
 bool Moter::init_gpio()
@@ -66,14 +89,14 @@ bool Moter::init_gpio()
     try{
         qDebug()<<"[Debug] init_gpio ====> clear ";
 
-        /*if (wiringPiSetup() == -1){ throw Device_Exception("wiringPiSetup()", __LINE__, Error_type::Error);}
+        if (wiringPiSetup() == -1){ throw Device_Exception("wiringPiSetup()", __LINE__, Error_type::Error);}
 
         pinMode(device_gpio, OUTPUT);
 
         digitalWrite(device_gpio,LOW);
 
         if (softPwmCreate(device_gpio,0,200) == -1){ throw Device_Exception("softPwmCreate",__LINE__, Error_type::Error);}
-*/
+
         device_active = true;
 
         return true;
@@ -90,9 +113,9 @@ bool Moter::init_position()
         if ( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__, Error_type::Warning);}
 
         qDebug()<<"[Debug] init_position ====> clear ";
-        //softPwmWrite (device_gpio, min_range);
+        softPwmWrite (device_gpio, min_range);
 
-        //delay(50);
+        delay(50);
 
         return true;
 
@@ -105,8 +128,6 @@ bool Moter::init_position()
 bool Moter::set_position(uint range)
 {
     try{
-
-        device_active = true;
 
         if ( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__, Error_type::Warning);}
 
@@ -131,13 +152,13 @@ bool Moter::set_position(uint range)
 
             }
             return false;
-        }
+        }*/
 
         current_range = range;
 
         softPwmWrite (device_gpio, current_range);
 
-        delay(50);*/
+        delay(50);
 
         current_range = range;
 

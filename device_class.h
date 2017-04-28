@@ -7,8 +7,8 @@
 #include <QtGlobal>
 #include <QHash>
 #include <QCryptographicHash>
-//#include "softPwm.h"
-//#include "wiringPi.h"
+#include "softPwm.h"
+#include "wiringPi.h"
 #include "device_exception.h"
 
 
@@ -75,6 +75,8 @@ public:
     bool                     set_moter_position(uint range);
     int                      get_moter_position();
 
+    //디바이스 init부분
+    bool                     set_init_wiring_pi();
 private:
     bool                     init_gpio();
     bool                     init_position();

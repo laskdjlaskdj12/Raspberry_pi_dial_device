@@ -355,6 +355,10 @@ void IOT_Access_Server::connect_socket()
 
                         Moter* adjust_device_moter = new Moter;
 
+                        // 해당 디바이스의 조작 부분에서 init부분
+                        adjust_device_moter->set_init_wiring_pi ();
+
+                        //디바이스 조작에서 pid를 실행
                         adjust_device_moter->set_device_pid (res_type);
 
                         uint moter_range = (obj["tempture"].toInt ()*24)/100;
