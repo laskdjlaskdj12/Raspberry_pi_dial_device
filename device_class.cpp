@@ -106,6 +106,8 @@ bool Moter::set_position(uint range)
 {
     try{
 
+        device_active = true;
+
         if ( device_active == false ){ throw Device_Exception("init_position : gpio device is not active", __LINE__, Error_type::Warning);}
 
         qDebug()<<"[Debug] set position of range : "<<range;

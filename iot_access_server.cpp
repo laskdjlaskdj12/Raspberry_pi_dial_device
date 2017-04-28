@@ -330,6 +330,7 @@ void IOT_Access_Server::connect_socket()
                     throw QString("No setting Temptreu");
                 }
 
+                qDebug()<< "=========== pid [" << obj["d_pid"].toString () <<"] ============";
                 //pid를 검색
                 sql_query.prepare ("SELECT `device_type` FROM `Device_list` WHERE `device_pid` = :pid ;");
                 sql_query.bindValue (":pid", obj["d_pid"].toString ());
@@ -339,7 +340,7 @@ void IOT_Access_Server::connect_socket()
                 sql_query.last ();
 
                 //만약 pid결과가 검색이 되지않았을경우 예외처리
-                if (sql_query.at () + 1 == 0){ throw QString ("No exsist pid");}
+                if (sql_query.at () + 1 < 0){ throw QString ("No exsist pid");}
 
                 sql_query.first ();
 
@@ -356,7 +357,13 @@ void IOT_Access_Server::connect_socket()
 
                         adjust_device_moter->set_device_pid (res_type);
 
-                        adjust_device_moter->set_moter_position ((obj["tempture"].toInt () / 100) * 24);
+                        uint moter_range = (obj["tempture"].toInt ()*24)/100;
+                        qDebug()<<"[Debug] : moter_range : "<<moter_range;
+                        if ( adjust_device_moter->set_moter_position (moter_range) == false){
+
+                            //만약 false일 경우
+                            throw QString("Moter adjust is fail");
+                        }
 
                         res_obj["tempture"] = obj["tempture"].toInt ();
 

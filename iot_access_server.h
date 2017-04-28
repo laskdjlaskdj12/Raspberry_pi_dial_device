@@ -12,6 +12,7 @@
 #include "init_rasapberry.h"
 #include "qt_json_socket_lib.h"
 #include "device_class.h"
+#include "device_exception.h"
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
