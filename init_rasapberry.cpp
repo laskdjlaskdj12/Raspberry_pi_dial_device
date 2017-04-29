@@ -575,7 +575,7 @@ int raspberry_control::add_raspberry_device(QString d_name, QString Type, QStrin
         db_query.clear ();
 
         //디바이스 리스트에 해당 디바이스를 추가
-        db_query.prepare ("INSERT INTO `Device_list`(`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`device_gpio`,`access_mobile_number`,`device_active`)"
+        db_query.prepare ("INSERT INTO `Device_list` (`device_type`,`device_name`,`device_pid`,`device_hash`,`identify_mobile_number`,`device_gpio`,`access_mobile_number`,`device_active`)"
                           "VALUES (:type, :name, :pid, :hash, :identify_mobile, :gpio, :access_mobile, :device_active);");
         db_query.bindValue (":type", device_class->get_device_type ());
         db_query.bindValue (":name", device_class->get_device_name ());
