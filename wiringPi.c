@@ -222,7 +222,11 @@ const char *piModelNames [16] =
   "Pi Zero",	// 09
   "CM3",	// 10
   "Unknown11",	// 11
+<<<<<<< HEAD
   "Unknown12",	// 12
+=======
+  "Pi Zero-W",	// 12
+>>>>>>> refs/heads/Re_Factoring_Branch
   "Unknown13",	// 13
   "Unknown14",	// 14
   "Unknown15",	// 15
@@ -2187,9 +2191,16 @@ int wiringPiSetup (void)
 
   switch (model)
   {
+<<<<<<< HEAD
     case PI_MODEL_A:  case PI_MODEL_B:
     case PI_MODEL_AP: case PI_MODEL_BP:
     case PI_ALPHA:    case PI_MODEL_CM: case PI_MODEL_ZERO:
+=======
+    case PI_MODEL_A:	case PI_MODEL_B:
+    case PI_MODEL_AP:	case PI_MODEL_BP:
+    case PI_ALPHA:	case PI_MODEL_CM:
+    case PI_MODEL_ZERO:	case PI_MODEL_ZERO_W:
+>>>>>>> refs/heads/Re_Factoring_Branch
       piGpioBase = GPIO_PERI_BASE_OLD ;
       break ;
 

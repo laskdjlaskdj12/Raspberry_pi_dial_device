@@ -23,7 +23,11 @@
  */
 
 #include <stdio.h>
+<<<<<<< HEAD
 #include <malloc.h>
+=======
+#include <malloc/malloc.h>
+>>>>>>> refs/heads/Re_Factoring_Branch
 #include <pthread.h>
 
 #include "wiringPi.h"

@@ -98,6 +98,10 @@
 #define	PI_MODEL_3		 8
 #define	PI_MODEL_ZERO		 9
 #define	PI_MODEL_CM3		10
+<<<<<<< HEAD
+=======
+#define	PI_MODEL_ZERO_W		12
+>>>>>>> refs/heads/Re_Factoring_Branch
 
 #define	PI_VERSION_1		0
 #define	PI_VERSION_1_1		1

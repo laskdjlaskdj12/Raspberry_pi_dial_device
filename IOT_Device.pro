@@ -1,4 +1,4 @@
-QT += core network
+QT += core network sql testlib
 QT -= gui
 
 CONFIG += c++11
@@ -11,9 +11,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     iot_access_server.cpp \
+<<<<<<< HEAD
     raspberry_device.cpp \
     softPwm.c \
     wiringPi.c
+=======
+    device_class.cpp \
+    device_exception.cpp \
+    init_rasapberry.cpp \
+    qt_json_socket_lib.cpp
+>>>>>>> refs/heads/Re_Factoring_Branch
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -30,11 +37,21 @@ HEADERS += \
     iot_access_server.h \
     qt_json_socket_lib_global.h \
     qt_json_socket_lib.h \
+<<<<<<< HEAD
     softPwm.h \
     wiringPi.h \
     raspberry_device.h
+=======
+    device_class.h \
+    device_exception.h \
+    init_rasapberry.h
+>>>>>>> refs/heads/Re_Factoring_Branch
 
 macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
 
 INCLUDEPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug
 DEPENDPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug
+
+INCLUDEPATH += $$PWD/../../wiringpi/wiringPi/wiringPi
+
+

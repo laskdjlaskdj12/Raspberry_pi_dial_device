@@ -6,6 +6,17 @@
 #include <QTcpSocket>
 #include <QThread>
 #include <QMap>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include "init_rasapberry.h"
+#include "qt_json_socket_lib.h"
+#include "device_class.h"
+#include "device_exception.h"
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonValue>
 
 #include "raspberry_device.h"
 #include "qt_json_socket_lib.h"
@@ -26,6 +37,7 @@ public:
     void open_server (int port);
 
 private:
+<<<<<<< HEAD
     void set_room_tempture (int temp);
     void set_bathroom_tempture (int temp);
     void set_gpio (int gpio_pine);
@@ -37,16 +49,39 @@ public slots:
     //만약 connection이 왔을때
     void disconnect_from_client ();
     void connect_socket ();
+=======
+    void set_room_tempture(QString pid, int temp);
+    void set_bathroom_tempture(QString pid, int temp);
+    QJsonObject current_device_list();
+
+signals:
+    int add_raspberry_device(QString d_name, QString Type, QString Device_ownder_number, int gpio_number, QString pid);
+    int remove_raspberry_device (QString pid);
+    int update_raspberry_devcie (QString pid, const QJsonObject obj);
+
+public slots:
+    void disconnect_from_client();
+    void connect_socket();
+    void open_server();
+
+>>>>>>> refs/heads/Re_Factoring_Branch
 private:
     QTcpServer* server;
-    QThread     sock_thread;
 
     //만약 소켓이 accept를 할경우
     Qt_Json_Socket_Lib lib;
 
     QMap<QString,int> device_list;
 
+<<<<<<< HEAD
     Raspberry_device dev;
+=======
+    //디바이스 저장 db
+    QSqlDatabase db;
+
+    Device_class* adjust_device;
+
+>>>>>>> refs/heads/Re_Factoring_Branch
 
 };
 
