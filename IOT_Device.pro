@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp \
+SOURCES += src/main.cpp \
     src/iot_access_server.cpp \
     src/raspberry_device.cpp \
     src/softPwm.c \
