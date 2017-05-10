@@ -10,17 +10,14 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    iot_access_server.cpp \
-<<<<<<< HEAD
-    raspberry_device.cpp \
-    softPwm.c \
-    wiringPi.c
-=======
-    device_class.cpp \
-    device_exception.cpp \
-    init_rasapberry.cpp \
-    qt_json_socket_lib.cpp
->>>>>>> refs/heads/Re_Factoring_Branch
+    src/iot_access_server.cpp \
+    src/raspberry_device.cpp \
+    src/softPwm.c \
+    src/wiringPi.c \
+    src/device_class.cpp \
+    src/device_exception.cpp \
+    src/init_rasapberry.cpp \
+    src/qt_json_socket_lib.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -34,18 +31,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
-    iot_access_server.h \
-    qt_json_socket_lib_global.h \
-    qt_json_socket_lib.h \
-<<<<<<< HEAD
-    softPwm.h \
-    wiringPi.h \
-    raspberry_device.h
-=======
-    device_class.h \
-    device_exception.h \
-    init_rasapberry.h
->>>>>>> refs/heads/Re_Factoring_Branch
+    src/iot_access_server.h \
+    src/qt_json_socket_lib_global.h \
+    src/qt_json_socket_lib.h \
+    src/softPwm.h \
+    src/wiringPi.h \
+    src/raspberry_device.h
+    src/device_class.h \
+    src/device_exception.h \
+    src/init_rasapberry.h
 
 macx: LIBS += -L$$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Debug/ -lQt_Json_Socket_Lib.1.0.0
 
@@ -55,3 +49,6 @@ DEPENDPATH += $$PWD/../build-Qt_Json_Socket_Lib-Desktop_Qt_5_8_0_clang_64bit-Deb
 INCLUDEPATH += $$PWD/../../wiringpi/wiringPi/wiringPi
 
 
+# COPYWRITE BY laskdjlaskdj12 by inhoeKu
+# This Copywrite only used by non commersial license and none ravinuew license
+# ALL Soures is free
