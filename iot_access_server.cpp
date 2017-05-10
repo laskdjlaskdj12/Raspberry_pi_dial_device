@@ -332,7 +332,7 @@ void IOT_Access_Server::connect_socket()
 
                 qDebug()<< "=========== pid [" << obj["d_pid"].toString () <<"] ============";
                 //pid를 검색
-                sql_query.prepare ("SELECT `device_type` FROM `Device_list` WHERE `device_pid` = :pid ;");
+                sql_query.prepare ("SELECT * FROM `Device_list` WHERE `device_pid` = :pid ;");
                 sql_query.bindValue (":pid", obj["d_pid"].toString ());
 
                 if (sql_query.exec () == false){ throw QString("server sql is fail");}
@@ -358,6 +358,9 @@ void IOT_Access_Server::connect_socket()
                         // 해당 디바이스의 조작 부분에서 init부분
                         adjust_device_moter->set_init_wiring_pi ();
 
+                        qDebug()<<"gpio : "<<sql_query.value (5).toInt ();
+
+                        adjust_device_moter->set_device_gpio (sql_query.value (5).toInt ());
                         //디바이스 조작에서 pid를 실행
                         adjust_device_moter->set_device_pid (res_type);
 

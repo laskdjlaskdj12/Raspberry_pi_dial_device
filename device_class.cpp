@@ -154,9 +154,7 @@ bool Moter::set_position(uint range)
             return false;
         }*/
 
-        current_range = range;
-
-        softPwmWrite (device_gpio, current_range);
+        softPwmWrite (device_gpio, range);
 
         delay(50);
 
